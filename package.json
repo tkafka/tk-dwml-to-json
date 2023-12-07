@@ -1,26 +1,26 @@
 {
-  "name": "dwml-to-json",
+  "name": "tk-dwml-to-json",
   "version": "0.1.0",
-  "description": "A simple DWML parser",
+  "description": "A fork of simple DWML parser by tkafka",
   "main": "dwml-parser.js",
   "scripts": {
     "test": "./node_modules/mocha/bin/mocha ./test/test.js"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/thataustin/dwml-to-json.git"
+    "url": "git+https://github.com/tkafka/tk-dwml-to-json.git"
   },
   "keywords": [
     "dwml",
     "noaa",
     "parser"
   ],
-  "author": "thataustin@gmail.com",
+  "author": "tk@tomaskafka.com",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/thataustin/dwml-parser/issues"
+    "url": "https://github.com/tkafka/tk-dwml-to-json/issues"
   },
-  "homepage": "https://github.com/thataustin/dwml-parser#readme",
+  "homepage": "https://github.com/tkafka/tk-dwml-to-json#readme",
   "dependencies": {
     "expect.js": "^0.3.1",
     "underscore": "^1.8.3",

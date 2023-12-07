@@ -37,26 +37,62 @@ var timeLayoutParser = {
    * @private
    */
   _getTimeFrames: function (timeLayoutData) {
-    var i = 0, timeframes = [], currentPair = {};
+    var i = 0,
+      timeframes = [],
+      currentPair = null,
+      lastInterval = null;
 
     while (i < timeLayoutData.length) {
       var currentLayoutTime = timeLayoutData[i] || {};
 
-      if (currentLayoutTime.name === 'start-valid-time') {
-        currentPair = { 'start-time': currentLayoutTime.content };
+      if (currentLayoutTime.name === "start-valid-time") {
+        // either a single record, or a start of a tuple
+        if (currentPair) {
+          // compute interval
+          const currentPairStart = new Date(currentPair["start-time"]);
+          const currentPairEnd = new Date(currentLayoutTime.content);
+          lastInterval = currentPairEnd - currentPairStart;
+
+          // close the previous and save
+          currentPair["end-time"] = currentLayoutTime.content;
+          timeframes.push(_.clone(currentPair));
+          currentPair = null;
+        }
+
+        // start a new one
+        currentPair = { "start-time": currentLayoutTime.content };
       }
 
-      if (currentLayoutTime.name === 'end-valid-time') {
-        currentPair['end-time'] = currentLayoutTime.content;
+      if (currentLayoutTime.name === "end-valid-time") {
+        // compute interval
+        const currentPairStart = new Date(currentPair["start-time"]);
+        const currentPairEnd = new Date(currentLayoutTime.content);
+        lastInterval = currentPairEnd - currentPairStart;
+
+        // close the previous and save
+        currentPair["end-time"] = currentLayoutTime.content;
         timeframes.push(_.clone(currentPair));
-        currentPair = {};
+        currentPair = null;
       }
       i++;
     }
 
+    if (currentPair) {
+      // if we have open pair, close it
+      const currentPairStart = new Date(currentPair["start-time"]);
+      const currentPairDuration = lastInterval || 1000 * 60 * 60; // default to 1hr interval
+      const currentPairEnd = new Date(
+        currentPairStart.getTime() + currentPairDuration
+      );
+
+      // close the previous and save
+      currentPair["end-time"] = currentPairEnd.toISOString();
+      timeframes.push(_.clone(currentPair));
+      currentPair = null;
+    }
+
     return timeframes;
   }
-
 };
 
 module.exports = timeLayoutParser;

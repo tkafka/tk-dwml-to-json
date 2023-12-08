@@ -1,14 +1,16 @@
 var _ = require('underscore');
+var luxon = require("luxon");
 
 var timeLayoutParser = {
-
   /**
    * @param timeLayoutDataSet {JSON} - just console.log it to see what it looks like
    */
   parse: function (timeLayoutDataSet) {
-
     if (!timeLayoutDataSet.children) {
-      throw new Error('Missing children attribute of time layout tag: ' + JSON.stringify(timeLayoutDataSet));
+      throw new Error(
+        "Missing children attribute of time layout tag: " +
+          JSON.stringify(timeLayoutDataSet)
+      );
     }
 
     var timeLayoutData = timeLayoutDataSet.children;
@@ -20,9 +22,11 @@ var timeLayoutParser = {
   },
 
   _getKey: function (timeLayoutData) {
-    var keyObj = _.findWhere(timeLayoutData, { name: 'layout-key' });
-    if (! (keyObj && keyObj.content )) {
-      throw new Error('Time Layout is missing key: ' + JSON.stringify(timeLayoutData));
+    var keyObj = _.findWhere(timeLayoutData, { name: "layout-key" });
+    if (!(keyObj && keyObj.content)) {
+      throw new Error(
+        "Time Layout is missing key: " + JSON.stringify(timeLayoutData)
+      );
     }
 
     return keyObj.content;
@@ -79,20 +83,35 @@ var timeLayoutParser = {
 
     if (currentPair) {
       // if we have open pair, close it
+      // use Luxon to keep the timezones
+      const currentPairStart = luxon.DateTime.fromISO(
+        currentPair["start-time"],
+        {
+          setZone: true,
+        }
+      );
+      const currentPairDuration = lastInterval || 1000 * 60 * 60; // default to 1hr interval
+      const currentPairEnd = currentPairStart.plus({
+        milliseconds: currentPairDuration,
+      });
+
+      /*
+      // original with Date
       const currentPairStart = new Date(currentPair["start-time"]);
       const currentPairDuration = lastInterval || 1000 * 60 * 60; // default to 1hr interval
       const currentPairEnd = new Date(
         currentPairStart.getTime() + currentPairDuration
       );
+      */
 
       // close the previous and save
-      currentPair["end-time"] = currentPairEnd.toISOString();
+      currentPair["end-time"] = currentPairEnd.toISO();
       timeframes.push(_.clone(currentPair));
       currentPair = null;
     }
 
     return timeframes;
-  }
+  },
 };
 
 module.exports = timeLayoutParser;

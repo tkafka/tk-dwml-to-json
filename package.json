@@ -1,8 +1,11 @@
 {
   "name": "tk-dwml-to-json",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "A fork of simple DWML parser by tkafka",
   "main": "dwml-parser.js",
+  "engines": {
+    "node": "^13.0"
+  },
   "scripts": {
     "test": "./node_modules/mocha/bin/mocha ./test/test.js"
   },
@@ -23,6 +26,7 @@
   "homepage": "https://github.com/tkafka/tk-dwml-to-json#readme",
   "dependencies": {
     "expect.js": "^0.3.1",
+    "luxon": "^3.4.4",
     "underscore": "^1.13.6",
     "xml-parser": "^1.2.1"
   },

@@ -1,6 +1,6 @@
 {
   "name": "tk-dwml-to-json",
-  "version": "0.1.3",
+  "version": "0.2.0",
   "description": "A fork of simple DWML parser by tkafka",
   "main": "dwml-parser.js",
   "engines": {

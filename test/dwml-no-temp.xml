@@ -120,38 +120,6 @@
       <end-valid-time>2015-06-30T17:00:00-07:00</end-valid-time>
     </time-layout>
     <parameters applicable-location="point1">
-      <temperature type="hourly" units="Celsius" time-layout="k-p6h-n13-2">
-        <name>Temperature</name>
-        <value>0.35</value>
-        <value>0.37</value>
-        <value>0.00</value>
-        <value>0.00</value>
-        <value>0.00</value>
-        <value>0.00</value>
-        <value>0.00</value>
-        <value>0.00</value>
-        <value>0.00</value>
-        <value>0.00</value>
-        <value>0.00</value>
-        <value>0.01</value>
-        <value>0.13</value>
-      </temperature>
-      <temperature type="apparent" units="Celsius" time-layout="k-p6h-n13-2">
-        <name>Apparent Temperature</name>
-        <value>0.35</value>
-        <value>0.37</value>
-        <value>0.00</value>
-        <value>0.00</value>
-        <value>0.00</value>
-        <value>0.00</value>
-        <value>0.00</value>
-        <value>0.00</value>
-        <value>0.00</value>
-        <value>0.00</value>
-        <value>0.00</value>
-        <value>0.01</value>
-        <value>0.13</value>
-      </temperature>
       <precipitation type="liquid" units="inches" time-layout="k-p6h-n13-2">
         <name>Liquid Precipitation Amount</name>
         <value>0.35</value>
@@ -199,39 +167,7 @@
         </weather-conditions>
       </weather>
     </parameters>
-    <parameters applicable-location="point2">
-      <temperature type="hourly" units="Celsius" time-layout="k-p6h-n13-2">
-        <name>Temperature</name>
-        <value>0.35</value>
-        <value>0.37</value>
-        <value>0.00</value>
-        <value>0.00</value>
-        <value>0.00</value>
-        <value>0.00</value>
-        <value>0.00</value>
-        <value>0.00</value>
-        <value>0.00</value>
-        <value>0.00</value>
-        <value>0.00</value>
-        <value>0.01</value>
-        <value>0.13</value>
-      </temperature>
-      <temperature type="apparent" units="Celsius" time-layout="k-p6h-n13-2">
-        <name>Apparent Temperature</name>
-        <value>0.35</value>
-        <value>0.37</value>
-        <value>0.00</value>
-        <value>0.00</value>
-        <value>0.00</value>
-        <value>0.00</value>
-        <value>0.00</value>
-        <value>0.00</value>
-        <value>0.00</value>
-        <value>0.00</value>
-        <value>0.00</value>
-        <value>0.01</value>
-        <value>0.13</value>
-      </temperature>    
+    <parameters applicable-location="point2">  
       <precipitation type="liquid" units="inches" time-layout="k-p6h-n13-4">
         <name>Liquid Precipitation Amount</name>
         <value>0.00</value>

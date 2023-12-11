@@ -1,13 +1,12 @@
 var _ = require('underscore');
+var utils = require("./utils");
 
 var parameterParser = {
-
   /**
    * @param parameterDataSet {JSON} - essentially a <parameter> tag in a DWML tree, represented as JSON
    * @param timeLayouts {Object} - { layoutKey : Array<layoutObject> }
    */
   parse: function (timeLayouts, parameterDataSet) {
-
     var locationKey = this._getLocationKey(parameterDataSet);
     var parameters = parameterDataSet.children;
 
@@ -17,32 +16,52 @@ var parameterParser = {
   },
 
   _getLocationKey: function (parameterDataSet) {
-    if (! (parameterDataSet && parameterDataSet.attributes && parameterDataSet.attributes['applicable-location']) ) {
-      throw new Error('DWML parameters is missing child "attributes" (which must contain an "applicable-location"): ' + JSON.stringify(parameterDataSet));
+    if (
+      !(
+        parameterDataSet &&
+        parameterDataSet.attributes &&
+        parameterDataSet.attributes["applicable-location"]
+      )
+    ) {
+      throw new Error(
+        'DWML parameters is missing child "attributes" (which must contain an "applicable-location"): ' +
+          JSON.stringify(parameterDataSet)
+      );
     }
-    return parameterDataSet.attributes['applicable-location'];
+    return parameterDataSet.attributes["applicable-location"];
   },
 
   _parseParameters: function (parameters, timeLayouts) {
-    return _.reduce(parameters, function (memo, dataSet) {
+    return _.reduce(
+      parameters,
+      function (memo, dataSet) {
+        var typeSlug = utils.slugify(dataSet.attributes.type);
 
-      var key = dataSet.name;
-      memo[key] = memo[key] || {};
+        var key = dataSet.name;
+        if (typeof typeSlug === "string" && typeSlug.length > 0) {
+          key = `${dataSet.name}-${typeSlug}`;
+        }
 
+        memo[key] = memo[key] || {};
 
-      var layoutKey = dataSet.attributes['time-layout'];
-      var timeFrames = timeLayouts[layoutKey];
-      var values = this._formatValuesWithTimeLayouts(dataSet.children, timeFrames);
+        var layoutKey = dataSet.attributes["time-layout"];
+        var timeFrames = timeLayouts[layoutKey];
+        var values = this._formatValuesWithTimeLayouts(
+          dataSet.children,
+          timeFrames
+        );
 
-      /**
-       * Mixin the attributes and the values that we've created to make this a much more consumable data structure,
-       * while preserving most of the dwml language baked into the DWML xml tags
-       */
-      _.extend(memo[key], dataSet.attributes, { values: values });
+        /**
+         * Mixin the attributes and the values that we've created to make this a much more consumable data structure,
+         * while preserving most of the dwml language baked into the DWML xml tags
+         */
+        _.extend(memo[key], dataSet.attributes, { values: values });
 
-      return memo;
-
-    }, {}, this);
+        return memo;
+      },
+      {},
+      this
+    );
   },
 
   /**
@@ -68,30 +87,46 @@ var parameterParser = {
       ]
   */
   _formatValuesWithTimeLayouts: function (values, timeFrames) {
-    var i = 0, timeFrameCounter = 0, results = [], currentTimeFrame;
+    var i = 0,
+      timeFrameCounter = 0,
+      results = [],
+      currentTimeFrame;
 
     while (i < values.length) {
       var currentValue = values[i];
 
       currentTimeFrame = timeFrames[timeFrameCounter];
-      if (currentValue.name === 'value') {
+      if (currentValue.name === "value") {
         currentTimeFrame = timeFrames[timeFrameCounter];
-        results.push(_.extend({}, currentTimeFrame, {value: currentValue.content }));  
+        results.push(
+          _.extend({}, currentTimeFrame, { value: currentValue.content })
+        );
         timeFrameCounter++;
       }
-      if (currentValue.name === 'weather-conditions') {
+      if (currentValue.name === "weather-conditions") {
         currentTimeFrame = timeFrames[timeFrameCounter];
-        var hasChildren = currentValue.children && currentValue.children.length > 0;
+        var hasChildren =
+          currentValue.children && currentValue.children.length > 0;
 
         var weather_condition = {
-          summary: currentValue.attributes[ 'weather-summary' ],
-          coverage: ( hasChildren ) ? currentValue.children[ 0 ].attributes.coverage : null,
-          intensity: ( hasChildren ) ? currentValue.children[ 0 ].attributes.intensity : null,
-          weather_type: ( hasChildren ) ? currentValue.children[ 0 ].attributes['weather-type'] : null,
-          qualifier: ( hasChildren ) ? currentValue.children[ 0 ].attributes.qualifier : null,
+          summary: currentValue.attributes["weather-summary"],
+          coverage: hasChildren
+            ? currentValue.children[0].attributes.coverage
+            : null,
+          intensity: hasChildren
+            ? currentValue.children[0].attributes.intensity
+            : null,
+          weather_type: hasChildren
+            ? currentValue.children[0].attributes["weather-type"]
+            : null,
+          qualifier: hasChildren
+            ? currentValue.children[0].attributes.qualifier
+            : null,
         };
 
-        results.push(_.extend({},currentTimeFrame, {value: weather_condition}));
+        results.push(
+          _.extend({}, currentTimeFrame, { value: weather_condition })
+        );
         timeFrameCounter++;
       }
 
@@ -99,8 +134,7 @@ var parameterParser = {
     }
 
     return results;
-  }
-
+  },
 };
 
 module.exports = parameterParser;

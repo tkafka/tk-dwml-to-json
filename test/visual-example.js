@@ -14,15 +14,15 @@ describe('DWML Parser', function () {
   var parsedData;
 
   before(function () {
-    var testXmlFile = path.resolve(__dirname, './dwml.xml');
-    var xmlString = fs.readFileSync(testXmlFile, 'utf8');
+    var testXmlFile = path.resolve(__dirname, "./dwml-no-temp.xml");
+    var xmlString = fs.readFileSync(testXmlFile, "utf8");
     parsedData = dwmlParser.parse(xmlString);
   });
 
-  it('#parses', function () {
+  it("#parses", function () {
     expect(parsedData).to.eql({
       point1: {
-        precipitation: {
+        "precipitation-liquid": {
           type: "liquid",
           units: "inches",
           "time-layout": "k-p6h-n13-2",
@@ -94,7 +94,7 @@ describe('DWML Parser', function () {
             },
           ],
         },
-        "probability-of-precipitation": {
+        "probability-of-precipitation-12-hour": {
           type: "12 hour",
           units: "percent",
           "time-layout": "k-p12h-n7-1",
@@ -224,7 +224,7 @@ describe('DWML Parser', function () {
         },
       },
       point2: {
-        precipitation: {
+        "precipitation-liquid": {
           type: "liquid",
           units: "inches",
           "time-layout": "k-p6h-n13-4",
@@ -296,7 +296,7 @@ describe('DWML Parser', function () {
             },
           ],
         },
-        "probability-of-precipitation": {
+        "probability-of-precipitation-12-hour": {
           type: "12 hour",
           units: "percent",
           "time-layout": "k-p12h-n7-3",

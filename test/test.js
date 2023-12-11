@@ -36,38 +36,58 @@ describe('DWML Parser', function () {
       });
     });
 
-    it('parses precipitation parameter', function () {
-
+    it("parses precipitation parameter", function () {
       // Make sure we're testing a real iterable
       expect(_.values(parsedData)).to.have.length(2);
 
       _.each(parsedData, function (data) {
-        expect(data.precipitation.type).to.be('liquid');
-        expect(data.precipitation.units).to.be('inches');
-        expect(expectedTimeLayoutKeys).to.contain(data['probability-of-precipitation']['time-layout']);
+        expect(data["precipitation-liquid"].type).to.be("liquid");
+        expect(data["precipitation-liquid"].units).to.be("inches");
+        expect(expectedTimeLayoutKeys).to.contain(
+          data["probability-of-precipitation-12-hour"]["time-layout"]
+        );
 
-        _.each(data.precipitation.values, function (value) {
-          expect(value['start-time']).to.not.be.empty();
-          expect(value['end-time']).to.not.be.empty();
-          expect(value['value']).to.not.be.empty();
-        })
+        _.each(data["precipitation-liquid"].values, function (value) {
+          expect(value["start-time"]).to.not.be.empty();
+          expect(value["end-time"]).to.not.be.empty();
+          expect(value["value"]).to.not.be.empty();
+        });
       });
     });
 
-    it('parses probability-of-precipitation', function () {
+    it("parses multiple types of temperature", function () {
       // Make sure we're testing a real iterable
       expect(_.values(parsedData)).to.have.length(2);
 
       _.each(parsedData, function (data) {
-        expect(data['probability-of-precipitation'].type).to.be('12 hour');
-        expect(data['probability-of-precipitation'].units).to.be('percent');
-        expect(expectedTimeLayoutKeys).to.contain(data['probability-of-precipitation']['time-layout']);
+        expect(data["temperature-hourly"].type).to.be("hourly");
+        expect(data["temperature-apparent"].type).to.be("apparent");
+      });
+    });
 
-        _.each(data['probability-of-precipitation'].values, function (value) {
-          expect(value['start-time']).to.not.be.empty();
-          expect(value['end-time']).to.not.be.empty();
-          expect(value['value']).to.not.be.empty();
-        })
+    it("parses probability-of-precipitation", function () {
+      // Make sure we're testing a real iterable
+      expect(_.values(parsedData)).to.have.length(2);
+
+      _.each(parsedData, function (data) {
+        expect(data["probability-of-precipitation-12-hour"].type).to.be(
+          "12 hour"
+        );
+        expect(data["probability-of-precipitation-12-hour"].units).to.be(
+          "percent"
+        );
+        expect(expectedTimeLayoutKeys).to.contain(
+          data["probability-of-precipitation-12-hour"]["time-layout"]
+        );
+
+        _.each(
+          data["probability-of-precipitation-12-hour"].values,
+          function (value) {
+            expect(value["start-time"]).to.not.be.empty();
+            expect(value["end-time"]).to.not.be.empty();
+            expect(value["value"]).to.not.be.empty();
+          }
+        );
       });
     });
 

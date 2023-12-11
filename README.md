@@ -1,4 +1,11 @@
 # dwml-to-json
+A fork of [thataustin/dwml-to-json](https://github.com/thataustin/dwml-to-json).
+
+Differences:
+- parses also series without `end-valid-time`
+- preserves timezones with Luxon
+- appends a type to series name, to distinguish eg. multiple temperature series (real & apparent)
+
 Pass in a DWML string, get back a JS object.
 
 This is a fairly naive approach to making [DWML](http://graphical.weather.gov/xml/mdl/XML/Design/MDL_XML_Design.pdf) more approachable in JS.

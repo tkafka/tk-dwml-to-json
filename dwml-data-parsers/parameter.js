@@ -42,20 +42,23 @@ var parameterParser = {
           key = `${dataSet.name}-${typeSlug}`;
         }
 
-        memo[key] = memo[key] || {};
-
         var layoutKey = dataSet.attributes["time-layout"];
-        var timeFrames = timeLayouts[layoutKey];
-        var values = this._formatValuesWithTimeLayouts(
-          dataSet.children,
-          timeFrames
-        );
+        if (layoutKey !== "") {
+          /// only if there's some layout
+          var timeFrames = timeLayouts[layoutKey];
+          var values = this._formatValuesWithTimeLayouts(
+            dataSet.children,
+            timeFrames
+          );
 
-        /**
-         * Mixin the attributes and the values that we've created to make this a much more consumable data structure,
-         * while preserving most of the dwml language baked into the DWML xml tags
-         */
-        _.extend(memo[key], dataSet.attributes, { values: values });
+          /// add key to memo
+          memo[key] = memo[key] || {};
+          /**
+           * Mixin the attributes and the values that we've created to make this a much more consumable data structure,
+           * while preserving most of the dwml language baked into the DWML xml tags
+           */
+          _.extend(memo[key], dataSet.attributes, { values: values });
+        }
 
         return memo;
       },

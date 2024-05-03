@@ -1,4 +1,4 @@
-var _ = require('underscore');
+var _ = require("underscore");
 var utils = require("./utils");
 
 var parameterParser = {
@@ -8,7 +8,7 @@ var parameterParser = {
    */
   parse: function (timeLayouts, parameterDataSet) {
     var locationKey = this._getLocationKey(parameterDataSet);
-    var parameters = parameterDataSet.children;
+    var parameters = parameterDataSet["children"];
 
     var results = {};
     results[locationKey] = this._parseParameters(parameters, timeLayouts);

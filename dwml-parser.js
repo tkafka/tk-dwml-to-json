@@ -1,9 +1,8 @@
-var parse = require('xml-parser');
-var _ = require('underscore');
-var dwmlDataSubtreeParser = require('./dwml-data-subtree-parser');
+var parse = require("xml-parser");
+var _ = require("underscore");
+var dwmlDataSubtreeParser = require("./dwml-data-subtree-parser");
 
 var dwmlParser = {
-
   /**
    * Parses dwml into a JSON object that's easier to grok
    *
@@ -24,7 +23,7 @@ var dwmlParser = {
       throw new Error(isValid);
     }
 
-    var dwmlDataSubtree = _.findWhere(root.children, { name: 'data'});
+    var dwmlDataSubtree = _.findWhere(root.children, { name: "data" });
 
     var results = {};
     _.extend(results, this._getDocumentData(dwmlDataSubtree));
@@ -43,19 +42,19 @@ var dwmlParser = {
    */
   _isValidDWMLTree: function (root) {
     if (!root) {
-      return 'Cannot find document root';
+      return "Cannot find document root";
     }
 
-    if (root.name !== 'dwml') {
+    if (root["name"] !== "dwml") {
       return 'Root element is supposed to be named "dwml"';
     }
 
-    if (! root.children ) {
-      return 'Cannot find DWML data [ie, the children element of the dwml tree]';
+    if (!root["children"]) {
+      return "Cannot find DWML data [ie, the children element of the dwml tree]";
     }
 
     return true;
-  }
+  },
 };
 
 module.exports = dwmlParser;

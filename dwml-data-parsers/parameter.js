@@ -43,9 +43,17 @@ var parameterParser = {
         }
 
         var layoutKey = dataSet.attributes["time-layout"];
-        if (layoutKey !== "") {
+        if (layoutKey) {
           /// only if there's some layout
           var timeFrames = timeLayouts[layoutKey];
+
+          if (dataSet.children.length - 1 != timeFrames.length) {
+            throw new Error(
+              `The number of time frames in the time layout ${layoutKey} (${timeFrames.length}) does not match the number of dataSet children (${dataSet.children.length} without a name): ` +
+                JSON.stringify(dataSet)
+            );
+          }
+
           var values = this._formatValuesWithTimeLayouts(
             dataSet.children,
             timeFrames

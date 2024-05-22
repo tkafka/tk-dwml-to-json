@@ -10,6 +10,14 @@ var expect = require("expect.js");
 var dwmlParser = require("../dwml-parser");
 
 describe("DWML parser", function () {
+  describe("MapClick.php", function () {
+    it("parses MapClick data as of 2024-05-22", function () {
+      const testXmlFile = path.resolve(__dirname, "./MapClick-2024-05-22.xml");
+      const xmlString = fs.readFileSync(testXmlFile, "utf8");
+      const parsedData = dwmlParser.parse(xmlString);
+      console.log(parsedData);
+    });
+  });
   describe("dwml.xml", function () {
     let parsedData;
     const expectedTimeLayoutKeys = [

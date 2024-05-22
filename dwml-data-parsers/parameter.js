@@ -47,9 +47,29 @@ var parameterParser = {
           /// only if there's some layout
           var timeFrames = timeLayouts[layoutKey];
 
-          if (dataSet.children.length - 1 != timeFrames.length) {
+          /*
+          var valueChildNames = ["value", "weather-conditions"];
+          var childrenValueCount = dataSet.children.reduce((acc, child) => {
+            if (valueChildNames.includes(child.name)) {
+              return acc + 1;
+            } else {
+              return acc;
+            }
+          }, 0);
+          */
+
+          // we need to ignore name children, as they only specify data serie name
+          var childrenNonNameCount = dataSet.children.reduce((acc, child) => {
+            if (child.name !== "name") {
+              return acc + 1;
+            } else {
+              return acc;
+            }
+          }, 0);
+
+          if (childrenNonNameCount != timeFrames.length) {
             throw new Error(
-              `The number of time frames in the time layout ${layoutKey} (${timeFrames.length}) does not match the number of dataSet children (${dataSet.children.length} without a name): ` +
+              `The number of time frames in the time layout ${layoutKey} (${timeFrames.length}) does not match the number of dataSet children value entries (${childrenNonNameCount}): ` +
                 JSON.stringify(dataSet)
             );
           }

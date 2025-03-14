@@ -2,19 +2,31 @@ import parse from "xml-parser";
 import _ from "underscore";
 import dwmlDataSubtreeParser from "./dwml-data-subtree-parser.js";
 
+/**
+ * @typedef {Object} DwmlParserOptions
+ * @property {boolean} [skipPropertiesWithNonMatchingEntryCount=false] - Whether to skip properties with non-matching entry counts instead of throwing an error
+ * @property {string[]} [skippedAttributes=[]] - Array of attribute names to exclude from the output
+ */
+
 const dwmlParser = {
 	/**
 	 * Parses dwml into a JSON object that's easier to grok
 	 *
 	 * @param xmlString {String} - raw DWML document text
+	 * @param {DwmlParserOptions} [options={}] - optional config object with parsing options
 	 * @return {Object}
 	 */
-	parse: function (xmlString) {
+	parse: function (xmlString, options = {}) {
 		const documentAsJson = parse(xmlString);
-		return this._getDwmlObjectsFromTree(documentAsJson);
+		return this._getDwmlObjectsFromTree(documentAsJson, options);
 	},
 
-	_getDwmlObjectsFromTree: function (documentAsJson) {
+	/**
+	 * @param {Object} documentAsJson - The parsed XML document as JSON
+	 * @param {DwmlParserOptions} [options={}] - configuration options
+	 * @returns {Object}
+	 */
+	_getDwmlObjectsFromTree: function (documentAsJson, options = {}) {
 		const root = documentAsJson?.root;
 
 		const isValid = this._isValidDWMLTree(root);
@@ -26,15 +38,17 @@ const dwmlParser = {
 		const dwmlDataSubtree = _.findWhere(root.children, { name: "data" });
 
 		const results = {};
-		_.extend(results, this._getDocumentData(dwmlDataSubtree));
+		_.extend(results, this._getDocumentData(dwmlDataSubtree, options));
 		return results;
 	},
 
 	/**
-	 * @param dwmlDataSubtree {Object} - The parsed XML data subtree
+	 * @param {Object} dwmlDataSubtree - The parsed XML data subtree
+	 * @param {DwmlParserOptions} [options={}] - configuration options
+	 * @returns {Object}
 	 */
-	_getDocumentData: (dwmlDataSubtree) => {
-		return dwmlDataSubtreeParser.parse(dwmlDataSubtree);
+	_getDocumentData: (dwmlDataSubtree, options = {}) => {
+		return dwmlDataSubtreeParser.parse(dwmlDataSubtree, options);
 	},
 
 	/**

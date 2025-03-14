@@ -554,9 +554,20 @@ describe("DWML parser", () => {
 			xmlString = fs.readFileSync(testXmlFile, "utf8");
 		});
 
+		it("throws an error when parsing broken file without skip option", () => {
+			// Should throw an error when parsing without skipPropertiesWithNonMatchingEntryCount option
+			expect(() => {
+				dwmlParser.parse(xmlString);
+			}).toThrow(
+				/number of time frames.*does not match the number of dataSet children/,
+			);
+		});
+
 		it("Parses broken file", () => {
 			// We should be able to parse the file without crashing
-			const parsedData = dwmlParser.parse(xmlString);
+			const parsedData = dwmlParser.parse(xmlString, {
+				skipPropertiesWithNonMatchingEntryCount: true,
+			});
 
 			// Verify the basic structure of the parsed data
 			expect(parsedData).toBeDefined();
@@ -570,6 +581,13 @@ describe("DWML parser", () => {
 			expect(point1.location).toBeDefined();
 			expect(point1.location.latitude).toBeDefined();
 			expect(point1.location.longitude).toBeDefined();
+			expect(point1["wind-speed-sustained"].values).toBeDefined();
+			expect(point1["wind-speed-sustained"].values.length).toBeGreaterThan(0);
+
+			expect(point1["wind-speed-gust"].values).toBeDefined();
+			expect(point1["wind-speed-gust"].values.length).toBeGreaterThan(0);
+			expect(point1["direction-wind"].values).toBeDefined();
+			expect(point1["direction-wind"].values.length).toBeGreaterThan(0);
 
 			// Log the parsed data for verification
 			logParsedData(parsedData);

@@ -12,9 +12,9 @@ import timeLayoutParser from "./dwml-data-parsers/time-layout.js";
  *   4. Merge location metadata and parameters (given that they're both grouped by location-id)
  *
  * @typedef {Object} DwmlDataSubtreeParser
- * @property {function(Object): Object} parse - Parse DWML data subtree
+ * @property {function(Object, import('./dwml-parser.js').DwmlParserOptions=): Object} parse - Parse DWML data subtree
  * @property {function(Array): Object} _getLocations - Extract locations
- * @property {function(Array, Object): Object} _getParameters - Extract parameters
+ * @property {function(Array, Object, import('./dwml-parser.js').DwmlParserOptions=): Object} _getParameters - Extract parameters
  * @property {function(Array): Object} _getTimeLayouts - Extract time layouts
  * @property {function(Object, Object): Object} _mergeLocationsAndParameters - Merge locations and parameters
  * @property {function(Array): Object} _unwrap - Unwrap array of objects
@@ -26,14 +26,16 @@ import timeLayoutParser from "./dwml-data-parsers/time-layout.js";
 const dwmlDataSubtreeParser = {
 	/**
 	 * @param {Object} dwmlDataSubtree
+	 * @param {import('./dwml-parser.js').DwmlParserOptions} [options={}] - optional config object with parsing options
 	 * @returns {Object}
 	 */
-	parse: function (dwmlDataSubtree) {
+	parse: function (dwmlDataSubtree, options = {}) {
 		// Add time data into parameters as we parse them
 		const timeLayouts = this._getTimeLayouts(dwmlDataSubtree.children);
 		const parameters = this._getParameters(
 			dwmlDataSubtree.children,
 			timeLayouts,
+			options,
 		);
 		const locations = this._getLocations(dwmlDataSubtree.children);
 
@@ -49,11 +51,16 @@ const dwmlDataSubtreeParser = {
 		return this._unwrap(locationsArray);
 	},
 
-	_getParameters: function (dataSets, timeLayouts) {
+	/**
+	 * @param {Array} dataSets - data sets to process
+	 * @param {Object} timeLayouts - time layouts
+	 * @param {import('./dwml-parser.js').DwmlParserOptions} [options={}] - optional configuration options
+	 * @returns {Object} - processed parameters
+	 */
+	_getParameters: function (dataSets, timeLayouts, options = {}) {
 		const parameterDataSets = _.where(dataSets, { name: "parameters" });
-		const parametersArray = _.map(
-			parameterDataSets,
-			parameterParser.parse.bind(parameterParser, timeLayouts),
+		const parametersArray = _.map(parameterDataSets, (parameterDataSet) =>
+			parameterParser.parse(timeLayouts, parameterDataSet, options),
 		);
 		return this._unwrap(parametersArray);
 	},

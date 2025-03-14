@@ -15,603 +15,569 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 describe("DWML parser", () => {
-  describe("MapClick.php", () => {
-    it("parses MapClick data as of 2024-05-22", () => {
-      const testXmlFile = path.resolve(__dirname, "./MapClick-2024-05-22.xml");
-      const xmlString = fs.readFileSync(testXmlFile, "utf8");
-      const parsedData = dwmlParser.parse(xmlString);
-      console.log(parsedData);
-    });
-  });
-  describe("dwml.xml", () => {
-    let parsedData;
-    const expectedTimeLayoutKeys = [
-      "k-p12h-n7-3",
-      "k-p12h-n7-2",
-      "k-p12h-n7-1",
-    ];
+	describe("MapClick.php", () => {
+		it("parses MapClick data as of 2024-05-22", () => {
+			const testXmlFile = path.resolve(__dirname, "./MapClick-2024-05-22.xml");
+			const xmlString = fs.readFileSync(testXmlFile, "utf8");
+			const parsedData = dwmlParser.parse(xmlString);
+			console.log(parsedData);
+		});
+	});
+	describe("dwml.xml", () => {
+		let parsedData;
+		const expectedTimeLayoutKeys = [
+			"k-p12h-n7-3",
+			"k-p12h-n7-2",
+			"k-p12h-n7-1",
+		];
 
-    beforeEach(() => {
-      const testXmlFile = path.resolve(__dirname, "./dwml.xml");
-      const xmlString = fs.readFileSync(testXmlFile, "utf8");
+		beforeEach(() => {
+			const testXmlFile = path.resolve(__dirname, "./dwml.xml");
+			const xmlString = fs.readFileSync(testXmlFile, "utf8");
 
-      parsedData = dwmlParser.parse(xmlString);
-    });
+			parsedData = dwmlParser.parse(xmlString);
+		});
 
-    it("parses locations", () => {
-      // There should be 2 points based on the test file
-      expect(_.values(parsedData)).toHaveLength(2);
+		it("parses locations", () => {
+			// There should be 2 points based on the test file
+			expect(_.values(parsedData)).toHaveLength(2);
 
-      // Each point should have a longitude and a latitude
-      _.each(parsedData, (data, locationKey) => {
-        expect(["point1", "point2"]).toContain(locationKey);
-        expect(data.location).toHaveProperty("longitude");
-        expect(data.location).toHaveProperty("latitude");
-      });
-    });
+			// Each point should have a longitude and a latitude
+			_.each(parsedData, (data, locationKey) => {
+				expect(["point1", "point2"]).toContain(locationKey);
+				expect(data.location).toHaveProperty("longitude");
+				expect(data.location).toHaveProperty("latitude");
+			});
+		});
 
-    it("parses precipitation parameter", () => {
-      // Make sure we're testing a real iterable
-      expect(_.values(parsedData)).toHaveLength(2);
+		it("parses precipitation parameter", () => {
+			// Make sure we're testing a real iterable
+			expect(_.values(parsedData)).toHaveLength(2);
 
-      _.each(parsedData, (data) => {
-        expect(data["precipitation-liquid"].type).toBe("liquid");
-        expect(data["precipitation-liquid"].units).toBe("inches");
-        expect(expectedTimeLayoutKeys).toContain(
-          data["probability-of-precipitation-12-hour"]["time-layout"]
-        );
+			_.each(parsedData, (data) => {
+				expect(data["precipitation-liquid"].type).toBe("liquid");
+				expect(data["precipitation-liquid"].units).toBe("inches");
+				expect(expectedTimeLayoutKeys).toContain(
+					data["probability-of-precipitation-12-hour"]["time-layout"],
+				);
 
-        _.each(data["precipitation-liquid"].values, (value) => {
-          expect(value["start-time"]).not.toBe("");
-          expect(value["end-time"]).not.toBe("");
-          expect(value["value"]).not.toBe("");
-        });
-      });
-    });
+				_.each(data["precipitation-liquid"].values, (value) => {
+					expect(value["start-time"]).not.toBe("");
+					expect(value["end-time"]).not.toBe("");
+					expect(value["value"]).not.toBe("");
+				});
+			});
+		});
 
-    it("parses multiple types of temperature", () => {
-      // Make sure we're testing a real iterable
-      expect(_.values(parsedData)).toHaveLength(2);
+		it("parses multiple types of temperature", () => {
+			// Make sure we're testing a real iterable
+			expect(_.values(parsedData)).toHaveLength(2);
 
-      _.each(parsedData, (data) => {
-        expect(data["temperature-hourly"].type).toBe("hourly");
-        expect(data["temperature-apparent"].type).toBe("apparent");
-      });
-    });
+			_.each(parsedData, (data) => {
+				expect(data["temperature-hourly"].type).toBe("hourly");
+				expect(data["temperature-apparent"].type).toBe("apparent");
+			});
+		});
 
-    it("parses probability-of-precipitation", () => {
-      // Make sure we're testing a real iterable
-      expect(_.values(parsedData)).toHaveLength(2);
+		it("parses probability-of-precipitation", () => {
+			// Make sure we're testing a real iterable
+			expect(_.values(parsedData)).toHaveLength(2);
 
-      _.each(parsedData, (data) => {
-        expect(data["probability-of-precipitation-12-hour"].type).toBe(
-          "12 hour"
-        );
-        expect(data["probability-of-precipitation-12-hour"].units).toBe(
-          "percent"
-        );
-        expect(expectedTimeLayoutKeys).toContain(
-          data["probability-of-precipitation-12-hour"]["time-layout"]
-        );
+			_.each(parsedData, (data) => {
+				expect(data["probability-of-precipitation-12-hour"].type).toBe(
+					"12 hour",
+				);
+				expect(data["probability-of-precipitation-12-hour"].units).toBe(
+					"percent",
+				);
+				expect(expectedTimeLayoutKeys).toContain(
+					data["probability-of-precipitation-12-hour"]["time-layout"],
+				);
 
-        _.each(
-          data["probability-of-precipitation-12-hour"].values,
-          (value) => {
-            expect(value["start-time"]).not.toBe("");
-            expect(value["end-time"]).not.toBe("");
-            expect(value["value"]).not.toBe("");
-          }
-        );
-      });
-    });
+				_.each(data["probability-of-precipitation-12-hour"].values, (value) => {
+					expect(value["start-time"]).not.toBe("");
+					expect(value["end-time"]).not.toBe("");
+					expect(value["value"]).not.toBe("");
+				});
+			});
+		});
 
-    it("parses weather", () => {
-      // Make sure we're testing a real iterable
-      expect(_.values(parsedData)).toHaveLength(2);
+		it("parses weather", () => {
+			// Make sure we're testing a real iterable
+			expect(_.values(parsedData)).toHaveLength(2);
 
-      _.each(parsedData, (data) => {
-        expect(expectedTimeLayoutKeys).toContain(
-          data["weather"]["time-layout"]
-        );
-        expect(data["weather"].values).toHaveLength(7);
+			_.each(parsedData, (data) => {
+				expect(expectedTimeLayoutKeys).toContain(
+					data["weather"]["time-layout"],
+				);
+				expect(data["weather"].values).toHaveLength(7);
 
-        _.each(data["weather"].values, (value) => {
-          expect(value["start-time"]).not.toBe("");
-          expect(value["end-time"]).not.toBe("");
-          expect(value["value"]).not.toBe("");
+				_.each(data["weather"].values, (value) => {
+					expect(value["start-time"]).not.toBe("");
+					expect(value["end-time"]).not.toBe("");
+					expect(value["value"]).not.toBe("");
 
-          expect(value["value"]).toHaveProperty("summary");
-          expect(value["value"]).toHaveProperty("coverage");
-          expect(value["value"]).toHaveProperty("intensity");
-          expect(value["value"]).toHaveProperty("weather_type");
-          expect(value["value"]).toHaveProperty("qualifier");
-        });
-      });
-    });
-  });
+					expect(value["value"]).toHaveProperty("summary");
+					expect(value["value"]).toHaveProperty("coverage");
+					expect(value["value"]).toHaveProperty("intensity");
+					expect(value["value"]).toHaveProperty("weather_type");
+					expect(value["value"]).toHaveProperty("qualifier");
+				});
+			});
+		});
+	});
 
-  describe("dwml-no-temp.xml", () => {
-    let xmlString;
+	describe("dwml-no-temp.xml", () => {
+		let xmlString;
 
-    beforeAll(() => {
-      const testXmlFile = path.resolve(__dirname, "./dwml-no-temp.xml");
-      xmlString = fs.readFileSync(testXmlFile, "utf8");
-    });
+		beforeAll(() => {
+			const testXmlFile = path.resolve(__dirname, "./dwml-no-temp.xml");
+			xmlString = fs.readFileSync(testXmlFile, "utf8");
+		});
 
-    it("Parses correctly", () => {
-      const parsedData = dwmlParser.parse(xmlString);
-      logParsedData(parsedData);
-      expect(parsedData).toEqual({
-        point1: {
-          "precipitation-liquid": {
-            type: "liquid",
-            units: "inches",
-            "time-layout": "k-p6h-n13-2",
-            values: [
-              {
-                "start-time": "2015-06-27T14:00:00-04:00",
-                "end-time": "2015-06-27T20:00:00-04:00",
-                value: "0.35",
-              },
-              {
-                "start-time": "2015-06-27T20:00:00-04:00",
-                "end-time": "2015-06-28T02:00:00-04:00",
-                value: "0.37",
-              },
-              {
-                "start-time": "2015-06-28T02:00:00-04:00",
-                "end-time": "2015-06-28T08:00:00-04:00",
-                value: "0.00",
-              },
-              {
-                "start-time": "2015-06-28T08:00:00-04:00",
-                "end-time": "2015-06-28T14:00:00-04:00",
-                value: "0.00",
-              },
-              {
-                "start-time": "2015-06-28T14:00:00-04:00",
-                "end-time": "2015-06-28T20:00:00-04:00",
-                value: "0.00",
-              },
-              {
-                "start-time": "2015-06-28T20:00:00-04:00",
-                "end-time": "2015-06-29T02:00:00-04:00",
-                value: "0.00",
-              },
-              {
-                "start-time": "2015-06-29T02:00:00-04:00",
-                "end-time": "2015-06-29T08:00:00-04:00",
-                value: "0.00",
-              },
-              {
-                "start-time": "2015-06-29T08:00:00-04:00",
-                "end-time": "2015-06-29T14:00:00-04:00",
-                value: "0.00",
-              },
-              {
-                "start-time": "2015-06-29T14:00:00-04:00",
-                "end-time": "2015-06-29T20:00:00-04:00",
-                value: "0.00",
-              },
-              {
-                "start-time": "2015-06-29T20:00:00-04:00",
-                "end-time": "2015-06-30T02:00:00-04:00",
-                value: "0.00",
-              },
-              {
-                "start-time": "2015-06-30T02:00:00-04:00",
-                "end-time": "2015-06-30T08:00:00-04:00",
-                value: "0.00",
-              },
-              {
-                "start-time": "2015-06-30T08:00:00-04:00",
-                "end-time": "2015-06-30T14:00:00-04:00",
-                value: "0.01",
-              },
-              {
-                "start-time": "2015-06-30T14:00:00-04:00",
-                "end-time": "2015-06-30T20:00:00-04:00",
-                value: "0.13",
-              },
-            ],
-          },
-          "probability-of-precipitation-12-hour": {
-            type: "12 hour",
-            units: "percent",
-            "time-layout": "k-p12h-n7-1",
-            values: [
-              {
-                "start-time": "2015-06-27T08:00:00-04:00",
-                "end-time": "2015-06-27T20:00:00-04:00",
-                value: "100",
-              },
-              {
-                "start-time": "2015-06-27T20:00:00-04:00",
-                "end-time": "2015-06-28T08:00:00-04:00",
-                value: "88",
-              },
-              {
-                "start-time": "2015-06-28T08:00:00-04:00",
-                "end-time": "2015-06-28T20:00:00-04:00",
-                value: "6",
-              },
-              {
-                "start-time": "2015-06-28T20:00:00-04:00",
-                "end-time": "2015-06-29T08:00:00-04:00",
-                value: "6",
-              },
-              {
-                "start-time": "2015-06-29T08:00:00-04:00",
-                "end-time": "2015-06-29T20:00:00-04:00",
-                value: "3",
-              },
-              {
-                "start-time": "2015-06-29T20:00:00-04:00",
-                "end-time": "2015-06-30T08:00:00-04:00",
-                value: "15",
-              },
-              {
-                "start-time": "2015-06-30T08:00:00-04:00",
-                "end-time": "2015-06-30T20:00:00-04:00",
-                value: "51",
-              },
-            ],
-          },
-          weather: {
-            "time-layout": "k-p12h-n7-1",
-            values: [
-              {
-                "start-time": "2015-06-27T08:00:00-04:00",
-                "end-time": "2015-06-27T20:00:00-04:00",
-                value: {
-                  summary: "Mostly Sunny",
-                  coverage: null,
-                  intensity: null,
-                  weather_type: null,
-                  qualifier: null,
-                },
-              },
-              {
-                "start-time": "2015-06-27T20:00:00-04:00",
-                "end-time": "2015-06-28T08:00:00-04:00",
-                value: {
-                  summary: "Mostly Sunny",
-                  coverage: null,
-                  intensity: null,
-                  weather_type: null,
-                  qualifier: null,
-                },
-              },
-              {
-                "start-time": "2015-06-28T08:00:00-04:00",
-                "end-time": "2015-06-28T20:00:00-04:00",
-                value: {
-                  summary: "Chance Rain Showers",
-                  coverage: "chance",
-                  intensity: "light",
-                  weather_type: "rain showers",
-                  qualifier: "none",
-                },
-              },
-              {
-                "start-time": "2015-06-28T20:00:00-04:00",
-                "end-time": "2015-06-29T08:00:00-04:00",
-                value: {
-                  summary: "Chance Rain Showers",
-                  coverage: "chance",
-                  intensity: "light",
-                  weather_type: "rain showers",
-                  qualifier: "none",
-                },
-              },
-              {
-                "start-time": "2015-06-29T08:00:00-04:00",
-                "end-time": "2015-06-29T20:00:00-04:00",
-                value: {
-                  summary: "Chance Rain Showers",
-                  coverage: "chance",
-                  intensity: "light",
-                  weather_type: "rain showers",
-                  qualifier: "none",
-                },
-              },
-              {
-                "start-time": "2015-06-29T20:00:00-04:00",
-                "end-time": "2015-06-30T08:00:00-04:00",
-                value: {
-                  summary: "Chance Rain Showers",
-                  coverage: "chance",
-                  intensity: "light",
-                  weather_type: "rain showers",
-                  qualifier: "none",
-                },
-              },
-              {
-                "start-time": "2015-06-30T08:00:00-04:00",
-                "end-time": "2015-06-30T20:00:00-04:00",
-                value: {
-                  summary: "Slight Chance Rain Showers",
-                  coverage: "slight chance",
-                  intensity: "light",
-                  weather_type: "rain showers",
-                  qualifier: "none",
-                },
-              },
-            ],
-          },
-          location: {
-            latitude: "38.99",
-            longitude: "-77.01",
-          },
-        },
-        point2: {
-          "precipitation-liquid": {
-            type: "liquid",
-            units: "inches",
-            "time-layout": "k-p6h-n13-4",
-            values: [
-              {
-                "start-time": "2015-06-27T11:00:00-07:00",
-                "end-time": "2015-06-27T17:00:00-07:00",
-                value: "0.00",
-              },
-              {
-                "start-time": "2015-06-27T17:00:00-07:00",
-                "end-time": "2015-06-27T23:00:00-07:00",
-                value: "0.00",
-              },
-              {
-                "start-time": "2015-06-27T23:00:00-07:00",
-                "end-time": "2015-06-28T05:00:00-07:00",
-                value: "0.00",
-              },
-              {
-                "start-time": "2015-06-28T05:00:00-07:00",
-                "end-time": "2015-06-28T11:00:00-07:00",
-                value: "0.00",
-              },
-              {
-                "start-time": "2015-06-28T11:00:00-07:00",
-                "end-time": "2015-06-28T17:00:00-07:00",
-                value: "0.00",
-              },
-              {
-                "start-time": "2015-06-28T17:00:00-07:00",
-                "end-time": "2015-06-28T23:00:00-07:00",
-                value: "0.00",
-              },
-              {
-                "start-time": "2015-06-28T23:00:00-07:00",
-                "end-time": "2015-06-29T05:00:00-07:00",
-                value: "0.00",
-              },
-              {
-                "start-time": "2015-06-29T05:00:00-07:00",
-                "end-time": "2015-06-29T11:00:00-07:00",
-                value: "0.00",
-              },
-              {
-                "start-time": "2015-06-29T11:00:00-07:00",
-                "end-time": "2015-06-29T17:00:00-07:00",
-                value: "0.00",
-              },
-              {
-                "start-time": "2015-06-29T17:00:00-07:00",
-                "end-time": "2015-06-29T23:00:00-07:00",
-                value: "0.00",
-              },
-              {
-                "start-time": "2015-06-29T23:00:00-07:00",
-                "end-time": "2015-06-30T05:00:00-07:00",
-                value: "0.00",
-              },
-              {
-                "start-time": "2015-06-30T05:00:00-07:00",
-                "end-time": "2015-06-30T11:00:00-07:00",
-                value: "0.00",
-              },
-              {
-                "start-time": "2015-06-30T11:00:00-07:00",
-                "end-time": "2015-06-30T17:00:00-07:00",
-                value: "0.00",
-              },
-            ],
-          },
-          "probability-of-precipitation-12-hour": {
-            type: "12 hour",
-            units: "percent",
-            "time-layout": "k-p12h-n7-3",
-            values: [
-              {
-                "start-time": "2015-06-27T05:00:00-07:00",
-                "end-time": "2015-06-27T17:00:00-07:00",
-                value: "1",
-              },
-              {
-                "start-time": "2015-06-27T17:00:00-07:00",
-                "end-time": "2015-06-28T05:00:00-07:00",
-                value: "6",
-              },
-              {
-                "start-time": "2015-06-28T05:00:00-07:00",
-                "end-time": "2015-06-28T17:00:00-07:00",
-                value: "6",
-              },
-              {
-                "start-time": "2015-06-28T17:00:00-07:00",
-                "end-time": "2015-06-29T05:00:00-07:00",
-                value: "2",
-              },
-              {
-                "start-time": "2015-06-29T05:00:00-07:00",
-                "end-time": "2015-06-29T17:00:00-07:00",
-                value: "3",
-              },
-              {
-                "start-time": "2015-06-29T17:00:00-07:00",
-                "end-time": "2015-06-30T05:00:00-07:00",
-                value: "0",
-              },
-              {
-                "start-time": "2015-06-30T05:00:00-07:00",
-                "end-time": "2015-06-30T17:00:00-07:00",
-                value: "0",
-              },
-            ],
-          },
-          weather: {
-            "time-layout": "k-p12h-n7-3",
-            values: [
-              {
-                "start-time": "2015-06-27T05:00:00-07:00",
-                "end-time": "2015-06-27T17:00:00-07:00",
-                value: {
-                  summary: "Mostly Sunny",
-                  coverage: null,
-                  intensity: null,
-                  weather_type: null,
-                  qualifier: null,
-                },
-              },
-              {
-                "start-time": "2015-06-27T17:00:00-07:00",
-                "end-time": "2015-06-28T05:00:00-07:00",
-                value: {
-                  summary: "Mostly Sunny",
-                  coverage: null,
-                  intensity: null,
-                  weather_type: null,
-                  qualifier: null,
-                },
-              },
-              {
-                "start-time": "2015-06-28T05:00:00-07:00",
-                "end-time": "2015-06-28T17:00:00-07:00",
-                value: {
-                  summary: "Chance Rain Showers",
-                  coverage: "chance",
-                  intensity: "light",
-                  weather_type: "rain showers",
-                  qualifier: "none",
-                },
-              },
-              {
-                "start-time": "2015-06-28T17:00:00-07:00",
-                "end-time": "2015-06-29T05:00:00-07:00",
-                value: {
-                  summary: "Chance Rain Showers",
-                  coverage: "chance",
-                  intensity: "light",
-                  weather_type: "rain showers",
-                  qualifier: "none",
-                },
-              },
-              {
-                "start-time": "2015-06-29T05:00:00-07:00",
-                "end-time": "2015-06-29T17:00:00-07:00",
-                value: {
-                  summary: "Chance Rain Showers",
-                  coverage: "chance",
-                  intensity: "light",
-                  weather_type: "rain showers",
-                  qualifier: "none",
-                },
-              },
-              {
-                "start-time": "2015-06-29T17:00:00-07:00",
-                "end-time": "2015-06-30T05:00:00-07:00",
-                value: {
-                  summary: "Chance Rain Showers",
-                  coverage: "chance",
-                  intensity: "light",
-                  weather_type: "rain showers",
-                  qualifier: "none",
-                },
-              },
-              {
-                "start-time": "2015-06-30T05:00:00-07:00",
-                "end-time": "2015-06-30T17:00:00-07:00",
-                value: {
-                  summary: "Slight Chance Rain Showers",
-                  coverage: "slight chance",
-                  intensity: "light",
-                  weather_type: "rain showers",
-                  qualifier: "none",
-                },
-              },
-            ],
-          },
-          location: {
-            latitude: "37.78",
-            longitude: "-122.42",
-          },
-        },
-      });
-    });
-  });
+		it("Parses correctly", () => {
+			const parsedData = dwmlParser.parse(xmlString);
+			logParsedData(parsedData);
+			expect(parsedData).toEqual({
+				point1: {
+					"precipitation-liquid": {
+						type: "liquid",
+						units: "inches",
+						"time-layout": "k-p6h-n13-2",
+						values: [
+							{
+								"start-time": "2015-06-27T14:00:00-04:00",
+								"end-time": "2015-06-27T20:00:00-04:00",
+								value: "0.35",
+							},
+							{
+								"start-time": "2015-06-27T20:00:00-04:00",
+								"end-time": "2015-06-28T02:00:00-04:00",
+								value: "0.37",
+							},
+							{
+								"start-time": "2015-06-28T02:00:00-04:00",
+								"end-time": "2015-06-28T08:00:00-04:00",
+								value: "0.00",
+							},
+							{
+								"start-time": "2015-06-28T08:00:00-04:00",
+								"end-time": "2015-06-28T14:00:00-04:00",
+								value: "0.00",
+							},
+							{
+								"start-time": "2015-06-28T14:00:00-04:00",
+								"end-time": "2015-06-28T20:00:00-04:00",
+								value: "0.00",
+							},
+							{
+								"start-time": "2015-06-28T20:00:00-04:00",
+								"end-time": "2015-06-29T02:00:00-04:00",
+								value: "0.00",
+							},
+							{
+								"start-time": "2015-06-29T02:00:00-04:00",
+								"end-time": "2015-06-29T08:00:00-04:00",
+								value: "0.00",
+							},
+							{
+								"start-time": "2015-06-29T08:00:00-04:00",
+								"end-time": "2015-06-29T14:00:00-04:00",
+								value: "0.00",
+							},
+							{
+								"start-time": "2015-06-29T14:00:00-04:00",
+								"end-time": "2015-06-29T20:00:00-04:00",
+								value: "0.00",
+							},
+							{
+								"start-time": "2015-06-29T20:00:00-04:00",
+								"end-time": "2015-06-30T02:00:00-04:00",
+								value: "0.00",
+							},
+							{
+								"start-time": "2015-06-30T02:00:00-04:00",
+								"end-time": "2015-06-30T08:00:00-04:00",
+								value: "0.00",
+							},
+							{
+								"start-time": "2015-06-30T08:00:00-04:00",
+								"end-time": "2015-06-30T14:00:00-04:00",
+								value: "0.01",
+							},
+							{
+								"start-time": "2015-06-30T14:00:00-04:00",
+								"end-time": "2015-06-30T20:00:00-04:00",
+								value: "0.13",
+							},
+						],
+					},
+					"probability-of-precipitation-12-hour": {
+						type: "12 hour",
+						units: "percent",
+						"time-layout": "k-p12h-n7-1",
+						values: [
+							{
+								"start-time": "2015-06-27T08:00:00-04:00",
+								"end-time": "2015-06-27T20:00:00-04:00",
+								value: "100",
+							},
+							{
+								"start-time": "2015-06-27T20:00:00-04:00",
+								"end-time": "2015-06-28T08:00:00-04:00",
+								value: "88",
+							},
+							{
+								"start-time": "2015-06-28T08:00:00-04:00",
+								"end-time": "2015-06-28T20:00:00-04:00",
+								value: "6",
+							},
+							{
+								"start-time": "2015-06-28T20:00:00-04:00",
+								"end-time": "2015-06-29T08:00:00-04:00",
+								value: "6",
+							},
+							{
+								"start-time": "2015-06-29T08:00:00-04:00",
+								"end-time": "2015-06-29T20:00:00-04:00",
+								value: "3",
+							},
+							{
+								"start-time": "2015-06-29T20:00:00-04:00",
+								"end-time": "2015-06-30T08:00:00-04:00",
+								value: "15",
+							},
+							{
+								"start-time": "2015-06-30T08:00:00-04:00",
+								"end-time": "2015-06-30T20:00:00-04:00",
+								value: "51",
+							},
+						],
+					},
+					weather: {
+						"time-layout": "k-p12h-n7-1",
+						values: [
+							{
+								"start-time": "2015-06-27T08:00:00-04:00",
+								"end-time": "2015-06-27T20:00:00-04:00",
+								value: {
+									summary: "Mostly Sunny",
+									coverage: null,
+									intensity: null,
+									weather_type: null,
+									qualifier: null,
+								},
+							},
+							{
+								"start-time": "2015-06-27T20:00:00-04:00",
+								"end-time": "2015-06-28T08:00:00-04:00",
+								value: {
+									summary: "Mostly Sunny",
+									coverage: null,
+									intensity: null,
+									weather_type: null,
+									qualifier: null,
+								},
+							},
+							{
+								"start-time": "2015-06-28T08:00:00-04:00",
+								"end-time": "2015-06-28T20:00:00-04:00",
+								value: {
+									summary: "Chance Rain Showers",
+									coverage: "chance",
+									intensity: "light",
+									weather_type: "rain showers",
+									qualifier: "none",
+								},
+							},
+							{
+								"start-time": "2015-06-28T20:00:00-04:00",
+								"end-time": "2015-06-29T08:00:00-04:00",
+								value: {
+									summary: "Chance Rain Showers",
+									coverage: "chance",
+									intensity: "light",
+									weather_type: "rain showers",
+									qualifier: "none",
+								},
+							},
+							{
+								"start-time": "2015-06-29T08:00:00-04:00",
+								"end-time": "2015-06-29T20:00:00-04:00",
+								value: {
+									summary: "Chance Rain Showers",
+									coverage: "chance",
+									intensity: "light",
+									weather_type: "rain showers",
+									qualifier: "none",
+								},
+							},
+							{
+								"start-time": "2015-06-29T20:00:00-04:00",
+								"end-time": "2015-06-30T08:00:00-04:00",
+								value: {
+									summary: "Chance Rain Showers",
+									coverage: "chance",
+									intensity: "light",
+									weather_type: "rain showers",
+									qualifier: "none",
+								},
+							},
+							{
+								"start-time": "2015-06-30T08:00:00-04:00",
+								"end-time": "2015-06-30T20:00:00-04:00",
+								value: {
+									summary: "Slight Chance Rain Showers",
+									coverage: "slight chance",
+									intensity: "light",
+									weather_type: "rain showers",
+									qualifier: "none",
+								},
+							},
+						],
+					},
+					location: {
+						latitude: "38.99",
+						longitude: "-77.01",
+					},
+				},
+				point2: {
+					"precipitation-liquid": {
+						type: "liquid",
+						units: "inches",
+						"time-layout": "k-p6h-n13-4",
+						values: [
+							{
+								"start-time": "2015-06-27T11:00:00-07:00",
+								"end-time": "2015-06-27T17:00:00-07:00",
+								value: "0.00",
+							},
+							{
+								"start-time": "2015-06-27T17:00:00-07:00",
+								"end-time": "2015-06-27T23:00:00-07:00",
+								value: "0.00",
+							},
+							{
+								"start-time": "2015-06-27T23:00:00-07:00",
+								"end-time": "2015-06-28T05:00:00-07:00",
+								value: "0.00",
+							},
+							{
+								"start-time": "2015-06-28T05:00:00-07:00",
+								"end-time": "2015-06-28T11:00:00-07:00",
+								value: "0.00",
+							},
+							{
+								"start-time": "2015-06-28T11:00:00-07:00",
+								"end-time": "2015-06-28T17:00:00-07:00",
+								value: "0.00",
+							},
+							{
+								"start-time": "2015-06-28T17:00:00-07:00",
+								"end-time": "2015-06-28T23:00:00-07:00",
+								value: "0.00",
+							},
+							{
+								"start-time": "2015-06-28T23:00:00-07:00",
+								"end-time": "2015-06-29T05:00:00-07:00",
+								value: "0.00",
+							},
+							{
+								"start-time": "2015-06-29T05:00:00-07:00",
+								"end-time": "2015-06-29T11:00:00-07:00",
+								value: "0.00",
+							},
+							{
+								"start-time": "2015-06-29T11:00:00-07:00",
+								"end-time": "2015-06-29T17:00:00-07:00",
+								value: "0.00",
+							},
+							{
+								"start-time": "2015-06-29T17:00:00-07:00",
+								"end-time": "2015-06-29T23:00:00-07:00",
+								value: "0.00",
+							},
+							{
+								"start-time": "2015-06-29T23:00:00-07:00",
+								"end-time": "2015-06-30T05:00:00-07:00",
+								value: "0.00",
+							},
+							{
+								"start-time": "2015-06-30T05:00:00-07:00",
+								"end-time": "2015-06-30T11:00:00-07:00",
+								value: "0.00",
+							},
+							{
+								"start-time": "2015-06-30T11:00:00-07:00",
+								"end-time": "2015-06-30T17:00:00-07:00",
+								value: "0.00",
+							},
+						],
+					},
+					"probability-of-precipitation-12-hour": {
+						type: "12 hour",
+						units: "percent",
+						"time-layout": "k-p12h-n7-3",
+						values: [
+							{
+								"start-time": "2015-06-27T05:00:00-07:00",
+								"end-time": "2015-06-27T17:00:00-07:00",
+								value: "1",
+							},
+							{
+								"start-time": "2015-06-27T17:00:00-07:00",
+								"end-time": "2015-06-28T05:00:00-07:00",
+								value: "6",
+							},
+							{
+								"start-time": "2015-06-28T05:00:00-07:00",
+								"end-time": "2015-06-28T17:00:00-07:00",
+								value: "6",
+							},
+							{
+								"start-time": "2015-06-28T17:00:00-07:00",
+								"end-time": "2015-06-29T05:00:00-07:00",
+								value: "2",
+							},
+							{
+								"start-time": "2015-06-29T05:00:00-07:00",
+								"end-time": "2015-06-29T17:00:00-07:00",
+								value: "3",
+							},
+							{
+								"start-time": "2015-06-29T17:00:00-07:00",
+								"end-time": "2015-06-30T05:00:00-07:00",
+								value: "0",
+							},
+							{
+								"start-time": "2015-06-30T05:00:00-07:00",
+								"end-time": "2015-06-30T17:00:00-07:00",
+								value: "0",
+							},
+						],
+					},
+					weather: {
+						"time-layout": "k-p12h-n7-3",
+						values: [
+							{
+								"start-time": "2015-06-27T05:00:00-07:00",
+								"end-time": "2015-06-27T17:00:00-07:00",
+								value: {
+									summary: "Mostly Sunny",
+									coverage: null,
+									intensity: null,
+									weather_type: null,
+									qualifier: null,
+								},
+							},
+							{
+								"start-time": "2015-06-27T17:00:00-07:00",
+								"end-time": "2015-06-28T05:00:00-07:00",
+								value: {
+									summary: "Mostly Sunny",
+									coverage: null,
+									intensity: null,
+									weather_type: null,
+									qualifier: null,
+								},
+							},
+							{
+								"start-time": "2015-06-28T05:00:00-07:00",
+								"end-time": "2015-06-28T17:00:00-07:00",
+								value: {
+									summary: "Chance Rain Showers",
+									coverage: "chance",
+									intensity: "light",
+									weather_type: "rain showers",
+									qualifier: "none",
+								},
+							},
+							{
+								"start-time": "2015-06-28T17:00:00-07:00",
+								"end-time": "2015-06-29T05:00:00-07:00",
+								value: {
+									summary: "Chance Rain Showers",
+									coverage: "chance",
+									intensity: "light",
+									weather_type: "rain showers",
+									qualifier: "none",
+								},
+							},
+							{
+								"start-time": "2015-06-29T05:00:00-07:00",
+								"end-time": "2015-06-29T17:00:00-07:00",
+								value: {
+									summary: "Chance Rain Showers",
+									coverage: "chance",
+									intensity: "light",
+									weather_type: "rain showers",
+									qualifier: "none",
+								},
+							},
+							{
+								"start-time": "2015-06-29T17:00:00-07:00",
+								"end-time": "2015-06-30T05:00:00-07:00",
+								value: {
+									summary: "Chance Rain Showers",
+									coverage: "chance",
+									intensity: "light",
+									weather_type: "rain showers",
+									qualifier: "none",
+								},
+							},
+							{
+								"start-time": "2015-06-30T05:00:00-07:00",
+								"end-time": "2015-06-30T17:00:00-07:00",
+								value: {
+									summary: "Slight Chance Rain Showers",
+									coverage: "slight chance",
+									intensity: "light",
+									weather_type: "rain showers",
+									qualifier: "none",
+								},
+							},
+						],
+					},
+					location: {
+						latitude: "37.78",
+						longitude: "-122.42",
+					},
+				},
+			});
+		});
+	});
 
-  describe("graphical.weather.gov", () => {
-    let xmlString;
+	describe("dwml-broken.xml", () => {
+		let xmlString;
 
-    beforeEach(() => {
-      const testXmlFile = path.resolve(
-        __dirname,
-        "./graphical.weather.gov-xml-SOAP_server-ndfdXMLclient.xml"
-      );
-      xmlString = fs.readFileSync(testXmlFile, "utf8");
-    });
+		beforeAll(() => {
+			const testXmlFile = path.resolve(__dirname, "./dwml-broken.xml");
+			xmlString = fs.readFileSync(testXmlFile, "utf8");
+		});
 
-    it("parses the file without crashing", () => {
-      const parsedData = dwmlParser.parse(xmlString);
-      const point1 = parsedData["point1"];
-      const keysAndValueCount = Object.keys(point1).reduce((acc, key) => {
-        if (key === "location") {
-          return acc;
-        }
-        const serie = point1[key];
-        if (Array.isArray(serie.values)) {
-          const firstStartTime = new Date(serie.values[0]["start-time"]);
-          const lastStartTime = new Date(
-            serie.values[serie.values.length - 1]["start-time"]
-          );
-          const extentHours = Math.floor(
-            (lastStartTime.getTime() - firstStartTime.getTime()) /
-              (60 * 60 * 1000)
-          );
-          const serieLength = serie.values.length;
-          const typicalIntervalHours = extentHours / serieLength;
+		it("Parses broken file", () => {
+			// We should be able to parse the file without crashing
+			const parsedData = dwmlParser.parse(xmlString);
 
-          // compute the intervals between series values start-time:
+			// Verify the basic structure of the parsed data
+			expect(parsedData).toBeDefined();
+			expect(typeof parsedData).toBe("object");
 
-          const intervalsHours = serie.values
-            .slice(0, -1)
-            .map((value, index) => {
-              const startTime = new Date(value["start-time"]).getTime();
-              const nextStartTime = new Date(
-                serie.values[index + 1]["start-time"]
-              ).getTime();
-              return (nextStartTime - startTime) / (60 * 60 * 1000);
-            });
+			// There should be at least one point
+			const point1 = parsedData.point1;
+			expect(point1).toBeDefined();
 
-          acc[
-            key
-          ] = `${serieLength} values, ${extentHours} hours, avg 𝛥 ${typicalIntervalHours.toFixed(
-            2
-          )} hr. Intervals: ${intervalsHours
-            .map((n) => `${n.toFixed(0)}`)
-            .join(", ")}`; //  (${firstStartTime} to ${lastStartTime})
-        } else {
-          throw new Error(`Serie ${key} does not have a values array`);
-          acc[key] = "skipped";
-        }
-        return acc;
-      }, {});
-      console.log({ keysAndValueCount });
-      logParsedData(parsedData);
-    });
-  });
+			// The point should have a location
+			expect(point1.location).toBeDefined();
+			expect(point1.location.latitude).toBeDefined();
+			expect(point1.location.longitude).toBeDefined();
 
-  function logParsedData(data) {
-    console.log(JSON.stringify(data, null, 2));
-  }
+			// Log the parsed data for verification
+			logParsedData(parsedData);
+		});
+	});
+
+	function logParsedData(data) {
+		console.log(JSON.stringify(data, null, 2));
+	}
 });

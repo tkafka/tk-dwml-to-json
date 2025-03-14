@@ -11,77 +11,88 @@ import timeLayoutParser from "./dwml-data-parsers/time-layout.js";
  *   3. Parse out the location metadata (grouped by location-id)
  *   4. Merge location metadata and parameters (given that they're both grouped by location-id)
  *
- * @type {{parse: Function}}
+ * @typedef {Object} DwmlDataSubtreeParser
+ * @property {function(Object): Object} parse - Parse DWML data subtree
+ * @property {function(Array): Object} _getLocations - Extract locations
+ * @property {function(Array, Object): Object} _getParameters - Extract parameters
+ * @property {function(Array): Object} _getTimeLayouts - Extract time layouts
+ * @property {function(Object, Object): Object} _mergeLocationsAndParameters - Merge locations and parameters
+ * @property {function(Array): Object} _unwrap - Unwrap array of objects
+ */
+
+/**
+ * @type {DwmlDataSubtreeParser}
  */
 const dwmlDataSubtreeParser = {
-  /**
-   * @param dwmlDataSubtree {JSON}
-   */
-  parse: function (dwmlDataSubtree) {
-    // Add time data into parameters as we parse them
-    var timeLayouts = this._getTimeLayouts(dwmlDataSubtree["children"]);
-    var parameters = this._getParameters(
-      dwmlDataSubtree["children"],
-      timeLayouts
-    );
-    var locations = this._getLocations(dwmlDataSubtree["children"]);
+	/**
+	 * @param {Object} dwmlDataSubtree
+	 * @returns {Object}
+	 */
+	parse: function (dwmlDataSubtree) {
+		// Add time data into parameters as we parse them
+		const timeLayouts = this._getTimeLayouts(dwmlDataSubtree.children);
+		const parameters = this._getParameters(
+			dwmlDataSubtree.children,
+			timeLayouts,
+		);
+		const locations = this._getLocations(dwmlDataSubtree.children);
 
-    return this._mergeLocationsAndParameters(locations, parameters);
-  },
+		return this._mergeLocationsAndParameters(locations, parameters);
+	},
 
-  _getLocations: function (dataSets) {
-    var locationDataSets = _.where(dataSets, { name: "location" });
-    var locationsArray = _.map(
-      locationDataSets,
-      locationParser.parse.bind(locationParser)
-    );
-    return this._unwrap(locationsArray);
-  },
+	_getLocations: function (dataSets) {
+		const locationDataSets = _.where(dataSets, { name: "location" });
+		const locationsArray = _.map(
+			locationDataSets,
+			locationParser.parse.bind(locationParser),
+		);
+		return this._unwrap(locationsArray);
+	},
 
-  _getParameters: function (dataSets, timeLayouts) {
-    var parameterDataSets = _.where(dataSets, { name: "parameters" });
-    var parametersArray = _.map(
-      parameterDataSets,
-      parameterParser.parse.bind(parameterParser, timeLayouts)
-    );
-    return this._unwrap(parametersArray);
-  },
+	_getParameters: function (dataSets, timeLayouts) {
+		const parameterDataSets = _.where(dataSets, { name: "parameters" });
+		const parametersArray = _.map(
+			parameterDataSets,
+			parameterParser.parse.bind(parameterParser, timeLayouts),
+		);
+		return this._unwrap(parametersArray);
+	},
 
-  _getTimeLayouts: function (dataSets) {
-    var timeLayoutDataSets = _.where(dataSets, { name: "time-layout" });
-    var timeLayoutArray = _.map(
-      timeLayoutDataSets,
-      timeLayoutParser.parse.bind(timeLayoutParser)
-    );
-    return this._unwrap(timeLayoutArray);
-  },
+	_getTimeLayouts: function (dataSets) {
+		const timeLayoutDataSets = _.where(dataSets, { name: "time-layout" });
+		const timeLayoutArray = _.map(
+			timeLayoutDataSets,
+			timeLayoutParser.parse.bind(timeLayoutParser),
+		);
+		return this._unwrap(timeLayoutArray);
+	},
 
-  _mergeLocationsAndParameters: function (locations, parameters) {
-    return _.reduce(
-      locations,
-      function (memo, location, locationKey) {
-        memo[locationKey] = _.extend(parameters[locationKey], {
-          location: location,
-        });
-        return memo;
-      },
-      {}
-    );
-  },
+	_mergeLocationsAndParameters: (locations, parameters) => {
+		return _.reduce(
+			locations,
+			(memo, location, locationKey) => {
+				memo[locationKey] = _.extend(parameters[locationKey], {
+					location: location,
+				});
+				return memo;
+			},
+			{},
+		);
+	},
 
-  /**
-   * @param arrayOfObjects {Array} - eg: [ { point1: {}, point2: {} } ]
-   * @return {Object} - eg: { point1: {}, point2: {} }
-   */
-  _unwrap: function (arrayOfObjects) {
-    return _.reduce(
-      arrayOfObjects,
-      function (memo, object) {
-        return _.extend(memo, object);
-      },
-      {}
-    );
-  },
+	/**
+	 * @param {Array} arrayOfObjects - eg: [ { point1: {}, point2: {} } ]
+	 * @return {Object} - eg: { point1: {}, point2: {} }
+	 */
+	_unwrap: (arrayOfObjects) => {
+		return _.reduce(
+			arrayOfObjects,
+			(memo, object) => {
+				return _.extend(memo, object);
+			},
+			{},
+		);
+	},
 };
 
 export default dwmlDataSubtreeParser;

@@ -1,7 +1,7 @@
 // Core modules
-import fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 // Libraries
 import _ from "underscore";
@@ -64,7 +64,7 @@ describe("DWML parser", () => {
 				_.each(data["precipitation-liquid"].values, (value) => {
 					expect(value["start-time"]).not.toBe("");
 					expect(value["end-time"]).not.toBe("");
-					expect(value["value"]).not.toBe("");
+					expect(value.value).not.toBe("");
 				});
 			});
 		});
@@ -97,7 +97,7 @@ describe("DWML parser", () => {
 				_.each(data["probability-of-precipitation-12-hour"].values, (value) => {
 					expect(value["start-time"]).not.toBe("");
 					expect(value["end-time"]).not.toBe("");
-					expect(value["value"]).not.toBe("");
+					expect(value.value).not.toBe("");
 				});
 			});
 		});
@@ -107,21 +107,19 @@ describe("DWML parser", () => {
 			expect(_.values(parsedData)).toHaveLength(2);
 
 			_.each(parsedData, (data) => {
-				expect(expectedTimeLayoutKeys).toContain(
-					data["weather"]["time-layout"],
-				);
-				expect(data["weather"].values).toHaveLength(7);
+				expect(expectedTimeLayoutKeys).toContain(data.weather["time-layout"]);
+				expect(data.weather.values).toHaveLength(7);
 
-				_.each(data["weather"].values, (value) => {
+				_.each(data.weather.values, (value) => {
 					expect(value["start-time"]).not.toBe("");
 					expect(value["end-time"]).not.toBe("");
-					expect(value["value"]).not.toBe("");
+					expect(value.value).not.toBe("");
 
-					expect(value["value"]).toHaveProperty("summary");
-					expect(value["value"]).toHaveProperty("coverage");
-					expect(value["value"]).toHaveProperty("intensity");
-					expect(value["value"]).toHaveProperty("weather_type");
-					expect(value["value"]).toHaveProperty("qualifier");
+					expect(value.value).toHaveProperty("summary");
+					expect(value.value).toHaveProperty("coverage");
+					expect(value.value).toHaveProperty("intensity");
+					expect(value.value).toHaveProperty("weather_type");
+					expect(value.value).toHaveProperty("qualifier");
 				});
 			});
 		});
@@ -551,6 +549,7 @@ describe("DWML parser", () => {
 		let xmlString;
 
 		beforeAll(() => {
+			// from https://forecast.weather.gov/MapClick.php?lat=34.0188&lon=-118.5097&FcstType=digitalDWML
 			const testXmlFile = path.resolve(__dirname, "./dwml-broken.xml");
 			xmlString = fs.readFileSync(testXmlFile, "utf8");
 		});

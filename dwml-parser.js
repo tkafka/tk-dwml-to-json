@@ -3,58 +3,58 @@ import _ from "underscore";
 import dwmlDataSubtreeParser from "./dwml-data-subtree-parser.js";
 
 const dwmlParser = {
-  /**
-   * Parses dwml into a JSON object that's easier to grok
-   *
-   * @param xmlString {String} - raw DWML document text
-   * @return {Object}
-   */
-  parse: function (xmlString) {
-    var documentAsJson = parse(xmlString);
-    return this._getDwmlObjectsFromTree(documentAsJson);
-  },
+	/**
+	 * Parses dwml into a JSON object that's easier to grok
+	 *
+	 * @param xmlString {String} - raw DWML document text
+	 * @return {Object}
+	 */
+	parse: function (xmlString) {
+		const documentAsJson = parse(xmlString);
+		return this._getDwmlObjectsFromTree(documentAsJson);
+	},
 
-  _getDwmlObjectsFromTree: function (documentAsJson) {
-    var root = documentAsJson && documentAsJson.root;
+	_getDwmlObjectsFromTree: function (documentAsJson) {
+		const root = documentAsJson?.root;
 
-    var isValid = this._isValidDWMLTree(root);
+		const isValid = this._isValidDWMLTree(root);
 
-    if (isValid !== true) {
-      throw new Error(isValid);
-    }
+		if (isValid !== true) {
+			throw new Error(isValid);
+		}
 
-    var dwmlDataSubtree = _.findWhere(root.children, { name: "data" });
+		const dwmlDataSubtree = _.findWhere(root.children, { name: "data" });
 
-    var results = {};
-    _.extend(results, this._getDocumentData(dwmlDataSubtree));
-    return results;
-  },
+		const results = {};
+		_.extend(results, this._getDocumentData(dwmlDataSubtree));
+		return results;
+	},
 
-  /**
-   * @param dwmlDataSubtree {JSON}
-   */
-  _getDocumentData: function (dwmlDataSubtree) {
-    return dwmlDataSubtreeParser.parse(dwmlDataSubtree);
-  },
+	/**
+	 * @param dwmlDataSubtree {Object} - The parsed XML data subtree
+	 */
+	_getDocumentData: (dwmlDataSubtree) => {
+		return dwmlDataSubtreeParser.parse(dwmlDataSubtree);
+	},
 
-  /**
-   * @param root {JSON}
-   */
-  _isValidDWMLTree: function (root) {
-    if (!root) {
-      return "Cannot find document root";
-    }
+	/**
+	 * @param root {Object} - The parsed XML root object with name and children properties
+	 */
+	_isValidDWMLTree: (root) => {
+		if (!root) {
+			return "Cannot find document root";
+		}
 
-    if (root["name"] !== "dwml") {
-      return 'Root element is supposed to be named "dwml"';
-    }
+		if (root.name !== "dwml") {
+			return 'Root element is supposed to be named "dwml"';
+		}
 
-    if (!root["children"]) {
-      return "Cannot find DWML data [ie, the children element of the dwml tree]";
-    }
+		if (!root.children) {
+			return "Cannot find DWML data [ie, the children element of the dwml tree]";
+		}
 
-    return true;
-  },
+		return true;
+	},
 };
 
 export default dwmlParser;

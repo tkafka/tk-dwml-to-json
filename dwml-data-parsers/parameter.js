@@ -1,53 +1,46 @@
-import _ from 'underscore';
-import utilsParser from './utils.js';
+import _ from "underscore";
+import { slugify } from "./utils.js";
 
 const parameterParser = {
-  /**
-   * @param parameterDataSet {JSON} - essentially a <parameter> tag in a DWML tree, represented as JSON
-   * @param timeLayouts {Object} - { layoutKey : Array<layoutObject> }
-   */
-  parse: function (timeLayouts, parameterDataSet) {
-    var locationKey = this._getLocationKey(parameterDataSet);
-    var parameters = parameterDataSet["children"];
+	/**
+	 * @param parameterDataSet {Object} - essentially a <parameter> tag in a DWML tree, represented as JSON
+	 * @param timeLayouts {Object} - { layoutKey : Array<layoutObject> }
+	 */
+	parse: function (timeLayouts, parameterDataSet) {
+		const locationKey = this._getLocationKey(parameterDataSet);
+		const parameters = parameterDataSet.children;
 
-    var results = {};
-    results[locationKey] = this._parseParameters(parameters, timeLayouts);
-    return results;
-  },
+		const results = {};
+		results[locationKey] = this._parseParameters(parameters, timeLayouts);
+		return results;
+	},
 
-  _getLocationKey: function (parameterDataSet) {
-    if (
-      !(
-        parameterDataSet &&
-        parameterDataSet.attributes &&
-        parameterDataSet.attributes["applicable-location"]
-      )
-    ) {
-      throw new Error(
-        'DWML parameters is missing child "attributes" (which must contain an "applicable-location"): ' +
-          JSON.stringify(parameterDataSet)
-      );
-    }
-    return parameterDataSet.attributes["applicable-location"];
-  },
+	_getLocationKey: (parameterDataSet) => {
+		if (!parameterDataSet?.attributes?.["applicable-location"]) {
+			throw new Error(
+				`DWML parameters is missing child "attributes" (which must contain an "applicable-location"): ${JSON.stringify(parameterDataSet)}`,
+			);
+		}
+		return parameterDataSet.attributes["applicable-location"];
+	},
 
-  _parseParameters: function (parameters, timeLayouts) {
-    return _.reduce(
-      parameters,
-      function (memo, dataSet) {
-        var typeSlug = utilsParser.slugify(dataSet.attributes.type);
+	_parseParameters: function (parameters, timeLayouts) {
+		return _.reduce(
+			parameters,
+			function (memo, dataSet) {
+				const typeSlug = slugify(dataSet.attributes.type);
 
-        var key = dataSet.name;
-        if (typeof typeSlug === "string" && typeSlug.length > 0) {
-          key = `${dataSet.name}-${typeSlug}`;
-        }
+				let key = dataSet.name;
+				if (typeof typeSlug === "string" && typeSlug.length > 0) {
+					key = `${dataSet.name}-${typeSlug}`;
+				}
 
-        var layoutKey = dataSet.attributes["time-layout"];
-        if (layoutKey) {
-          /// only if there's some layout
-          var timeFrames = timeLayouts[layoutKey];
+				const layoutKey = dataSet.attributes["time-layout"];
+				if (layoutKey) {
+					/// only if there's some layout
+					const timeFrames = timeLayouts[layoutKey];
 
-          /*
+					/*
           var valueChildNames = ["value", "weather-conditions"];
           var childrenValueCount = dataSet.children.reduce((acc, child) => {
             if (valueChildNames.includes(child.name)) {
@@ -58,44 +51,42 @@ const parameterParser = {
           }, 0);
           */
 
-          // we need to ignore name children, as they only specify data serie name
-          var childrenNonNameCount = dataSet.children.reduce((acc, child) => {
-            if (child.name !== "name") {
-              return acc + 1;
-            } else {
-              return acc;
-            }
-          }, 0);
+					// we need to ignore name children, as they only specify data serie name
+					const childrenNonNameCount = dataSet.children.reduce((acc, child) => {
+						if (child.name !== "name") {
+							return acc + 1;
+						}
+						return acc;
+					}, 0);
 
-          if (childrenNonNameCount != timeFrames.length) {
-            throw new Error(
-              `The number of time frames in the time layout ${layoutKey} (${timeFrames.length}) does not match the number of dataSet children value entries (${childrenNonNameCount}): ` +
-                JSON.stringify(dataSet)
-            );
-          }
+					if (childrenNonNameCount !== timeFrames.length) {
+						throw new Error(
+							`The number of time frames in the time layout ${layoutKey} (${timeFrames.length}) does not match the number of dataSet children value entries (${childrenNonNameCount}): ${JSON.stringify(dataSet)}`,
+						);
+					}
 
-          var values = this._formatValuesWithTimeLayouts(
-            dataSet.children,
-            timeFrames
-          );
+					const values = this._formatValuesWithTimeLayouts(
+						dataSet.children,
+						timeFrames,
+					);
 
-          /// add key to memo
-          memo[key] = memo[key] || {};
-          /**
-           * Mixin the attributes and the values that we've created to make this a much more consumable data structure,
-           * while preserving most of the dwml language baked into the DWML xml tags
-           */
-          _.extend(memo[key], dataSet.attributes, { values: values });
-        }
+					/// add key to memo
+					memo[key] = memo[key] || {};
+					/**
+					 * Mixin the attributes and the values that we've created to make this a much more consumable data structure,
+					 * while preserving most of the dwml language baked into the DWML xml tags
+					 */
+					_.extend(memo[key], dataSet.attributes, { values: values });
+				}
 
-        return memo;
-      },
-      {},
-      this
-    );
-  },
+				return memo;
+			},
+			{},
+			this,
+		);
+	},
 
-  /**
+	/**
     Change this
 
       children: [
@@ -117,55 +108,57 @@ const parameterParser = {
         ...
       ]
   */
-  _formatValuesWithTimeLayouts: function (values, timeFrames) {
-    var i = 0,
-      timeFrameCounter = 0,
-      results = [],
-      currentTimeFrame;
+	_formatValuesWithTimeLayouts: (values, timeFrames) => {
+		let i = 0;
+		let timeFrameCounter = 0;
+		const results = [];
+		let currentTimeFrame;
+		let currentValue;
+		let hasChildren;
+		let weather_condition;
 
-    while (i < values.length) {
-      var currentValue = values[i];
+		while (i < values.length) {
+			currentValue = values[i];
 
-      currentTimeFrame = timeFrames[timeFrameCounter];
-      if (currentValue.name === "value") {
-        currentTimeFrame = timeFrames[timeFrameCounter];
-        results.push(
-          _.extend({}, currentTimeFrame, { value: currentValue.content })
-        );
-        timeFrameCounter++;
-      }
-      if (currentValue.name === "weather-conditions") {
-        currentTimeFrame = timeFrames[timeFrameCounter];
-        var hasChildren =
-          currentValue.children && currentValue.children.length > 0;
+			currentTimeFrame = timeFrames[timeFrameCounter];
+			if (currentValue.name === "value") {
+				currentTimeFrame = timeFrames[timeFrameCounter];
+				results.push(
+					_.extend({}, currentTimeFrame, { value: currentValue.content }),
+				);
+				timeFrameCounter++;
+			}
+			if (currentValue.name === "weather-conditions") {
+				currentTimeFrame = timeFrames[timeFrameCounter];
+				hasChildren = currentValue.children && currentValue.children.length > 0;
 
-        var weather_condition = {
-          summary: currentValue.attributes["weather-summary"],
-          coverage: hasChildren
-            ? currentValue.children[0].attributes.coverage
-            : null,
-          intensity: hasChildren
-            ? currentValue.children[0].attributes.intensity
-            : null,
-          weather_type: hasChildren
-            ? currentValue.children[0].attributes["weather-type"]
-            : null,
-          qualifier: hasChildren
-            ? currentValue.children[0].attributes.qualifier
-            : null,
-        };
+				weather_condition = {
+					summary: currentValue.attributes["weather-summary"],
+					coverage: hasChildren
+						? currentValue.children[0].attributes.coverage
+						: null,
+					intensity: hasChildren
+						? currentValue.children[0].attributes.intensity
+						: null,
+					weather_type: hasChildren
+						? currentValue.children[0].attributes["weather-type"]
+						: null,
+					qualifier: hasChildren
+						? currentValue.children[0].attributes.qualifier
+						: null,
+				};
 
-        results.push(
-          _.extend({}, currentTimeFrame, { value: weather_condition })
-        );
-        timeFrameCounter++;
-      }
+				results.push(
+					_.extend({}, currentTimeFrame, { value: weather_condition }),
+				);
+				timeFrameCounter++;
+			}
 
-      i++;
-    }
+			i++;
+		}
 
-    return results;
-  },
+		return results;
+	},
 };
 
 export default parameterParser;

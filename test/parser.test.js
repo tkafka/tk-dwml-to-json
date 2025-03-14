@@ -1,24 +1,29 @@
 // Core modules
-var fs = require("fs");
-var path = require("path");
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
 
 // Libraries
-var _ = require("underscore");
-var expect = require("expect.js");
+import _ from "underscore";
+import { describe, it, expect, beforeEach, beforeAll } from "vitest";
 
 // Application Code
-var dwmlParser = require("../dwml-parser");
+import dwmlParser from "../dwml-parser.js";
 
-describe("DWML parser", function () {
-  describe("MapClick.php", function () {
-    it("parses MapClick data as of 2024-05-22", function () {
+// Helper to get __dirname equivalent in ESM
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+describe("DWML parser", () => {
+  describe("MapClick.php", () => {
+    it("parses MapClick data as of 2024-05-22", () => {
       const testXmlFile = path.resolve(__dirname, "./MapClick-2024-05-22.xml");
       const xmlString = fs.readFileSync(testXmlFile, "utf8");
       const parsedData = dwmlParser.parse(xmlString);
       console.log(parsedData);
     });
   });
-  describe("dwml.xml", function () {
+  describe("dwml.xml", () => {
     let parsedData;
     const expectedTimeLayoutKeys = [
       "k-p12h-n7-3",
@@ -26,117 +31,117 @@ describe("DWML parser", function () {
       "k-p12h-n7-1",
     ];
 
-    beforeEach(function () {
+    beforeEach(() => {
       const testXmlFile = path.resolve(__dirname, "./dwml.xml");
       const xmlString = fs.readFileSync(testXmlFile, "utf8");
 
       parsedData = dwmlParser.parse(xmlString);
     });
 
-    it("parses locations", function () {
+    it("parses locations", () => {
       // There should be 2 points based on the test file
-      expect(_.values(parsedData)).to.have.length(2);
+      expect(_.values(parsedData)).toHaveLength(2);
 
       // Each point should have a longitude and a latitude
-      _.each(parsedData, function (data, locationKey) {
-        expect(["point1", "point2"]).to.contain(locationKey);
-        expect(data.location).to.have.key("longitude");
-        expect(data.location).to.have.key("latitude");
+      _.each(parsedData, (data, locationKey) => {
+        expect(["point1", "point2"]).toContain(locationKey);
+        expect(data.location).toHaveProperty("longitude");
+        expect(data.location).toHaveProperty("latitude");
       });
     });
 
-    it("parses precipitation parameter", function () {
+    it("parses precipitation parameter", () => {
       // Make sure we're testing a real iterable
-      expect(_.values(parsedData)).to.have.length(2);
+      expect(_.values(parsedData)).toHaveLength(2);
 
-      _.each(parsedData, function (data) {
-        expect(data["precipitation-liquid"].type).to.be("liquid");
-        expect(data["precipitation-liquid"].units).to.be("inches");
-        expect(expectedTimeLayoutKeys).to.contain(
+      _.each(parsedData, (data) => {
+        expect(data["precipitation-liquid"].type).toBe("liquid");
+        expect(data["precipitation-liquid"].units).toBe("inches");
+        expect(expectedTimeLayoutKeys).toContain(
           data["probability-of-precipitation-12-hour"]["time-layout"]
         );
 
-        _.each(data["precipitation-liquid"].values, function (value) {
-          expect(value["start-time"]).to.not.be.empty();
-          expect(value["end-time"]).to.not.be.empty();
-          expect(value["value"]).to.not.be.empty();
+        _.each(data["precipitation-liquid"].values, (value) => {
+          expect(value["start-time"]).not.toBe("");
+          expect(value["end-time"]).not.toBe("");
+          expect(value["value"]).not.toBe("");
         });
       });
     });
 
-    it("parses multiple types of temperature", function () {
+    it("parses multiple types of temperature", () => {
       // Make sure we're testing a real iterable
-      expect(_.values(parsedData)).to.have.length(2);
+      expect(_.values(parsedData)).toHaveLength(2);
 
-      _.each(parsedData, function (data) {
-        expect(data["temperature-hourly"].type).to.be("hourly");
-        expect(data["temperature-apparent"].type).to.be("apparent");
+      _.each(parsedData, (data) => {
+        expect(data["temperature-hourly"].type).toBe("hourly");
+        expect(data["temperature-apparent"].type).toBe("apparent");
       });
     });
 
-    it("parses probability-of-precipitation", function () {
+    it("parses probability-of-precipitation", () => {
       // Make sure we're testing a real iterable
-      expect(_.values(parsedData)).to.have.length(2);
+      expect(_.values(parsedData)).toHaveLength(2);
 
-      _.each(parsedData, function (data) {
-        expect(data["probability-of-precipitation-12-hour"].type).to.be(
+      _.each(parsedData, (data) => {
+        expect(data["probability-of-precipitation-12-hour"].type).toBe(
           "12 hour"
         );
-        expect(data["probability-of-precipitation-12-hour"].units).to.be(
+        expect(data["probability-of-precipitation-12-hour"].units).toBe(
           "percent"
         );
-        expect(expectedTimeLayoutKeys).to.contain(
+        expect(expectedTimeLayoutKeys).toContain(
           data["probability-of-precipitation-12-hour"]["time-layout"]
         );
 
         _.each(
           data["probability-of-precipitation-12-hour"].values,
-          function (value) {
-            expect(value["start-time"]).to.not.be.empty();
-            expect(value["end-time"]).to.not.be.empty();
-            expect(value["value"]).to.not.be.empty();
+          (value) => {
+            expect(value["start-time"]).not.toBe("");
+            expect(value["end-time"]).not.toBe("");
+            expect(value["value"]).not.toBe("");
           }
         );
       });
     });
 
-    it("parses weather", function () {
+    it("parses weather", () => {
       // Make sure we're testing a real iterable
-      expect(_.values(parsedData)).to.have.length(2);
+      expect(_.values(parsedData)).toHaveLength(2);
 
-      _.each(parsedData, function (data) {
-        expect(expectedTimeLayoutKeys).to.contain(
+      _.each(parsedData, (data) => {
+        expect(expectedTimeLayoutKeys).toContain(
           data["weather"]["time-layout"]
         );
-        expect(data["weather"].values).to.have.length(7);
+        expect(data["weather"].values).toHaveLength(7);
 
-        _.each(data["weather"].values, function (value) {
-          expect(value["start-time"]).to.not.be.empty();
-          expect(value["end-time"]).to.not.be.empty();
-          expect(value["value"]).to.not.be.empty();
+        _.each(data["weather"].values, (value) => {
+          expect(value["start-time"]).not.toBe("");
+          expect(value["end-time"]).not.toBe("");
+          expect(value["value"]).not.toBe("");
 
-          expect(value["value"]).to.have.property("summary");
-          expect(value["value"]).to.have.property("coverage");
-          expect(value["value"]).to.have.property("intensity");
-          expect(value["value"]).to.have.property("weather_type");
-          expect(value["value"]).to.have.property("qualifier");
+          expect(value["value"]).toHaveProperty("summary");
+          expect(value["value"]).toHaveProperty("coverage");
+          expect(value["value"]).toHaveProperty("intensity");
+          expect(value["value"]).toHaveProperty("weather_type");
+          expect(value["value"]).toHaveProperty("qualifier");
         });
       });
     });
   });
 
-  describe("dwml-no-temp.xml", function () {
-    var xmlString;
+  describe("dwml-no-temp.xml", () => {
+    let xmlString;
 
-    before(function () {
-      var testXmlFile = path.resolve(__dirname, "./dwml-no-temp.xml");
+    beforeAll(() => {
+      const testXmlFile = path.resolve(__dirname, "./dwml-no-temp.xml");
       xmlString = fs.readFileSync(testXmlFile, "utf8");
     });
 
-    it("Parses correctly", function () {
+    it("Parses correctly", () => {
       const parsedData = dwmlParser.parse(xmlString);
       logParsedData(parsedData);
-      expect(parsedData).to.eql({
+      expect(parsedData).toEqual({
         point1: {
           "precipitation-liquid": {
             type: "liquid",
@@ -545,18 +550,18 @@ describe("DWML parser", function () {
     });
   });
 
-  describe("graphical.weather.gov", function () {
-    var xmlString;
+  describe("graphical.weather.gov", () => {
+    let xmlString;
 
-    beforeEach(function () {
-      var testXmlFile = path.resolve(
+    beforeEach(() => {
+      const testXmlFile = path.resolve(
         __dirname,
         "./graphical.weather.gov-xml-SOAP_server-ndfdXMLclient.xml"
       );
       xmlString = fs.readFileSync(testXmlFile, "utf8");
     });
 
-    it("parses the file without crashing", function () {
+    it("parses the file without crashing", () => {
       const parsedData = dwmlParser.parse(xmlString);
       const point1 = parsedData["point1"];
       const keysAndValueCount = Object.keys(point1).reduce((acc, key) => {

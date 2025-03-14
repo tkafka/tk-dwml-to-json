@@ -1,6 +1,6 @@
-var _ = require('underscore');
+import _ from 'underscore';
 
-var locationParser = {
+const locationParser = {
 
   /**
    * @param locationDataSet {JSON} - essentially a <location> tag in a DWML tree, represented as JSON
@@ -39,4 +39,4 @@ var locationParser = {
 
 };
 
-module.exports = locationParser;
+export default locationParser;

@@ -1,13 +1,18 @@
 {
   "name": "tk-dwml-to-json",
-  "version": "0.5.0",
+  "version": "1.0.0",
   "description": "A fork of simple DWML parser by tkafka",
   "main": "dwml-parser.js",
+  "type": "module",
   "engines": {
     "node": ">=13.0.0"
   },
   "scripts": {
-    "test": "./node_modules/mocha/bin/mocha ./test/test.js"
+    "test": "vitest run",
+    "format": "biome format --write .",
+		"format:check": "biome check --formatter-enabled=true --linter-enabled=false .",
+		"lint": "biome check .",
+		"lint:fix": "biome check --write ."
   },
   "repository": {
     "type": "git",
@@ -31,6 +36,7 @@
     "xml-parser": "^1.2.1"
   },
   "devDependencies": {
-    "mocha": "^10.2.0"
+    "@biomejs/biome": "^1.9.4",
+    "vitest": "^1.1.0"
   }
 }

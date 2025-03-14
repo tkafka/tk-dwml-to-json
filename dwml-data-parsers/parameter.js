@@ -1,7 +1,7 @@
-var _ = require("underscore");
-var utils = require("./utils");
+import _ from 'underscore';
+import utilsParser from './utils.js';
 
-var parameterParser = {
+const parameterParser = {
   /**
    * @param parameterDataSet {JSON} - essentially a <parameter> tag in a DWML tree, represented as JSON
    * @param timeLayouts {Object} - { layoutKey : Array<layoutObject> }
@@ -35,7 +35,7 @@ var parameterParser = {
     return _.reduce(
       parameters,
       function (memo, dataSet) {
-        var typeSlug = utils.slugify(dataSet.attributes.type);
+        var typeSlug = utilsParser.slugify(dataSet.attributes.type);
 
         var key = dataSet.name;
         if (typeof typeSlug === "string" && typeSlug.length > 0) {
@@ -168,4 +168,4 @@ var parameterParser = {
   },
 };
 
-module.exports = parameterParser;
+export default parameterParser;

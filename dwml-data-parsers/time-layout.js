@@ -1,7 +1,8 @@
-var _ = require('underscore');
-var luxon = require("luxon");
+import _ from 'underscore';
+import utilsParser from './utils.js';
+import { DateTime } from 'luxon';
 
-var timeLayoutParser = {
+const timeLayoutParser = {
   /**
    * @param timeLayoutDataSet {JSON} - just console.log it to see what it looks like
    */
@@ -84,7 +85,7 @@ var timeLayoutParser = {
     if (currentPair) {
       // if we have open pair, close it
       // use Luxon to keep the timezones
-      const currentPairStart = luxon.DateTime.fromISO(
+      const currentPairStart = DateTime.fromISO(
         currentPair["start-time"],
         {
           setZone: true,
@@ -114,4 +115,4 @@ var timeLayoutParser = {
   },
 };
 
-module.exports = timeLayoutParser;
+export default timeLayoutParser;

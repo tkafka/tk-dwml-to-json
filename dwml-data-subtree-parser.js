@@ -1,8 +1,8 @@
-var parse = require("xml-parser");
-var _ = require("underscore");
-var locationParser = require("./dwml-data-parsers/location");
-var parameterParser = require("./dwml-data-parsers/parameter");
-var timeLayoutParser = require("./dwml-data-parsers/time-layout");
+import parse from "xml-parser";
+import _ from "underscore";
+import locationParser from "./dwml-data-parsers/location.js";
+import parameterParser from "./dwml-data-parsers/parameter.js";
+import timeLayoutParser from "./dwml-data-parsers/time-layout.js";
 
 /**
  * The way I've chosen to parse DWML environmental data is to do the following:
@@ -13,7 +13,7 @@ var timeLayoutParser = require("./dwml-data-parsers/time-layout");
  *
  * @type {{parse: Function}}
  */
-var dwmlDataSubtreeParser = {
+const dwmlDataSubtreeParser = {
   /**
    * @param dwmlDataSubtree {JSON}
    */
@@ -84,4 +84,4 @@ var dwmlDataSubtreeParser = {
   },
 };
 
-module.exports = dwmlDataSubtreeParser;
+export default dwmlDataSubtreeParser;

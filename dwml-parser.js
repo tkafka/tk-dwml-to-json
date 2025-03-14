@@ -1,8 +1,8 @@
-var parse = require("xml-parser");
-var _ = require("underscore");
-var dwmlDataSubtreeParser = require("./dwml-data-subtree-parser");
+import parse from "xml-parser";
+import _ from "underscore";
+import dwmlDataSubtreeParser from "./dwml-data-subtree-parser.js";
 
-var dwmlParser = {
+const dwmlParser = {
   /**
    * Parses dwml into a JSON object that's easier to grok
    *
@@ -57,4 +57,4 @@ var dwmlParser = {
   },
 };
 
-module.exports = dwmlParser;
+export default dwmlParser;

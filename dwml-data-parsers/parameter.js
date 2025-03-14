@@ -51,7 +51,7 @@ const parameterParser = {
 				}
 
 				const layoutKey = dataSet.attributes["time-layout"];
-				if (layoutKey) {
+				if (layoutKey && !skippedAttributes.includes(key)) {
 					/// only if there's some layout
 					const matchingTimeFrames = timeLayouts[layoutKey];
 

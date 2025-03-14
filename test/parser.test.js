@@ -603,6 +603,38 @@ describe("DWML parser", () => {
 			// Log the parsed data for verification
 			logParsedData(parsedData);
 		});
+
+		it("Parses broken file and skips attributes", () => {
+			// We should be able to parse the file without crashing
+			const parsedData = dwmlParser.parse(xmlString, {
+				skipPropertiesWithNonMatchingEntryCount: true,
+				skippedAttributes: ["wind-speed-sustained"],
+			});
+
+			// Verify the basic structure of the parsed data
+			expect(parsedData).toBeDefined();
+			expect(typeof parsedData).toBe("object");
+
+			// There should be at least one point
+			const point1 = parsedData.point1;
+			expect(point1).toBeDefined();
+
+			// The point should have a location
+			expect(point1.location).toBeDefined();
+			expect(point1.location.latitude).toBeDefined();
+			expect(point1.location.longitude).toBeDefined();
+
+			// it's skipped, so it should be undefined
+			expect(point1.values["wind-speed-sustained"]).toBeUndefined();
+
+			expect(point1.values["wind-speed-gust"].values).toBeDefined();
+			expect(point1.values["wind-speed-gust"].values.length).toBeGreaterThan(0);
+			expect(point1.values["direction-wind"].values).toBeDefined();
+			expect(point1.values["direction-wind"].values.length).toBeGreaterThan(0);
+
+			// Log the parsed data for verification
+			logParsedData(parsedData);
+		});
 	});
 
 	function logParsedData(data) {

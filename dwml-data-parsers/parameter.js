@@ -11,8 +11,8 @@ const parameterParser = {
 	parse: function (timeLayouts, parameterDataSet, options = {}) {
 		// Normalize options with defaults
 		options.skipPropertiesWithNonMatchingEntryCount =
-			options.skipPropertiesWithNonMatchingEntryCount || false;
-		options.skippedAttributes = options.skippedAttributes || [];
+			options.skipPropertiesWithNonMatchingEntryCount ?? false;
+		options.skippedAttributes = options.skippedAttributes ?? [];
 
 		const locationKey = this._getLocationKey(parameterDataSet);
 		const parameters = parameterDataSet.children;
@@ -82,7 +82,7 @@ const parameterParser = {
 						);
 
 						/// add key to memo
-						memo[key] = memo[key] || {};
+						memo[key] = memo[key] ?? {};
 
 						// Filter out any attributes that should be skipped
 						const filteredAttributes = {};

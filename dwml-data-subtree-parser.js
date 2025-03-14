@@ -78,9 +78,10 @@ const dwmlDataSubtreeParser = {
 		return _.reduce(
 			locations,
 			(memo, location, locationKey) => {
-				memo[locationKey] = _.extend(parameters[locationKey], {
+				memo[locationKey] = {
 					location: location,
-				});
+					values: parameters[locationKey],
+				};
 				return memo;
 			},
 			{},

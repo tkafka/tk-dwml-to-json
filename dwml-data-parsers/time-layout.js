@@ -55,8 +55,8 @@ const timeLayoutParser = {
 		let lastInterval = null;
 
 		while (i < timeLayoutData.length) {
-			const currentLayoutTime = timeLayoutData[i] || {};
-			const content = currentLayoutTime.content || "";
+			const currentLayoutTime = timeLayoutData[i] ?? {};
+			const content = currentLayoutTime.content ?? "";
 
 			if (currentLayoutTime.name === "start-valid-time") {
 				// either a single record, or a start of a tuple
@@ -98,7 +98,7 @@ const timeLayoutParser = {
 			const currentPairStart = DateTime.fromISO(currentPair["start-time"], {
 				setZone: true,
 			});
-			const currentPairDuration = lastInterval || 1000 * 60 * 60; // default to 1hr interval
+			const currentPairDuration = lastInterval ?? 1000 * 60 * 60; // default to 1hr interval
 			const currentPairEnd = currentPairStart.plus({
 				milliseconds: currentPairDuration,
 			});
@@ -106,7 +106,7 @@ const timeLayoutParser = {
 			/*
       // original with Date
       const currentPairStart = new Date(currentPair["start-time"]);
-      const currentPairDuration = lastInterval || 1000 * 60 * 60; // default to 1hr interval
+      const currentPairDuration = lastInterval ?? 1000 * 60 * 60; // default to 1hr interval
       const currentPairEnd = new Date(
         currentPairStart.getTime() + currentPairDuration
       );

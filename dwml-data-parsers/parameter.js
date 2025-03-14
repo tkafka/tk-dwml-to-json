@@ -38,7 +38,7 @@ const parameterParser = {
 				const layoutKey = dataSet.attributes["time-layout"];
 				if (layoutKey) {
 					/// only if there's some layout
-					const timeFrames = timeLayouts[layoutKey];
+					const matchingTimeFrames = timeLayouts[layoutKey];
 
 					/*
           var valueChildNames = ["value", "weather-conditions"];
@@ -59,24 +59,28 @@ const parameterParser = {
 						return acc;
 					}, 0);
 
-					if (childrenNonNameCount !== timeFrames.length) {
+					if (matchingTimeFrames.length > 0 && childrenNonNameCount === 0) {
+						// silently skipping the empty properties with missing data
+					} else if (matchingTimeFrames.length !== childrenNonNameCount) {
+						// throwing error on obvious mismatch
 						throw new Error(
-							`The number of time frames in the time layout ${layoutKey} (${timeFrames.length}) does not match the number of dataSet children value entries (${childrenNonNameCount}): ${JSON.stringify(dataSet)}`,
+							`The number of time frames in the time layout ${layoutKey} (${matchingTimeFrames.length}) does not match the number of dataSet children value entries (${childrenNonNameCount}): ${JSON.stringify(dataSet)}`,
 						);
+					} else {
+						// save the matching properties
+						const values = this._formatValuesWithTimeLayouts(
+							dataSet.children,
+							matchingTimeFrames,
+						);
+
+						/// add key to memo
+						memo[key] = memo[key] || {};
+						/**
+						 * Mixin the attributes and the values that we've created to make this a much more consumable data structure,
+						 * while preserving most of the dwml language baked into the DWML xml tags
+						 */
+						_.extend(memo[key], dataSet.attributes, { values: values });
 					}
-
-					const values = this._formatValuesWithTimeLayouts(
-						dataSet.children,
-						timeFrames,
-					);
-
-					/// add key to memo
-					memo[key] = memo[key] || {};
-					/**
-					 * Mixin the attributes and the values that we've created to make this a much more consumable data structure,
-					 * while preserving most of the dwml language baked into the DWML xml tags
-					 */
-					_.extend(memo[key], dataSet.attributes, { values: values });
 				}
 
 				return memo;
